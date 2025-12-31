@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluemind.ai | Intelligence Latente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --sf-blue: #009EDB;
+            --sf-blue-dark: #0070d2;
+        }
+        body { background-color: #F3F5F9; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .sf-shadow { box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1); }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .gradient-border { border-image: linear-gradient(to right, var(--sf-blue), #FFB75E) 1; }
+        .input-focus:focus { outline: none; border-color: var(--sf-blue); box-shadow: 0 0 0 3px rgba(0, 158, 219, 0.2); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <header class="glass-header sticky top-0 z-50 border-b border-gray-200 px-6 py-4">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-[#009EDB] p-2 rounded-lg">
+                    <i class="fa-solid fa-brain text-white text-xl"></i>
+                </div>
+                <span class="text-2xl font-bold tracking-tight text-gray-800">Bluemind<span class="text-[#009EDB]">.ai</span></span>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600">
+                <a href="#" class="hover:text-[#009EDB] transition">World Model</a>
+                <a href="#" class="hover:text-[#009EDB] transition">JEPA Engine</a>
+                <span class="bg-blue-100 text-[#009EDB] px-2 py-1 rounded text-xs uppercase">v0.1 Beta</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-12">
+        
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Que voulez-vous simuler ?</h1>
+            <p class="text-gray-500 text-lg">L'intelligence latente qui prédit le futur de votre entreprise sans LLM.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl sf-shadow border border-gray-200 p-2 transition-all hover:border-blue-300">
+            <textarea id="userInput" 
+                      class="w-full p-4 text-lg bg-transparent border-none focus:ring-0 resize-none h-32" 
+                      placeholder="Décrivez un scénario stratégique ou une recherche..."></textarea>
+            
+            <div class="flex justify-between items-center p-2 border-t border-gray-100">
+                <div class="flex space-x-2">
+                    <button class="flex items-center space-x-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-sm hover:bg-gray-200 transition">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Focus</span>
+                    </button>
+                    <button class="flex items-center space-x-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-sm hover:bg-gray-200 transition">
+                        <i class="fa-solid fa-paperclip text-xs"></i>
+                        <span>Context</span>
+                    </button>
+                </div>
+                
+                <button onclick="runSimulation()" 
+                        class="bg-[#009EDB] hover:bg-[#0070d2] text-white px-6 py-2 rounded-full font-bold transition flex items-center space-x-2">
+                    <span>Simuler</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="resultSection" class="mt-8 space-y-6 hidden">
+            <div class="bg-blue-50 border-l-4 border-[#009EDB] p-6 rounded-r-xl">
+                <div class="flex items-center mb-4">
+                    <i class="fa-solid fa-microchip text-[#009EDB] mr-3"></i>
+                    <h3 class="font-bold text-gray-800">Analyse du World Model</h3>
+                </div>
+                <div id="outputContent" class="text-gray-700 leading-relaxed space-y-4">
+                    </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl sf-shadow border border-gray-100">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Incertitude Latente</span>
+                    <div id="uncertaintyVal" class="text-2xl font-mono text-[#009EDB]">0.00%</div>
+                </div>
+                <div class="bg-white p-4 rounded-xl sf-shadow border border-gray-100">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Statut Engine</span>
+                    <div class="text-2xl font-mono text-green-500 italic">Operational</div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="py-8 text-center text-gray-400 text-sm">
+        Propulsé par <span class="font-bold">Bluemind.ai</span> • Architecture JEPA Native
+    </footer>
+
+    <script>
+        async function runSimulation() {
+            const input = document.getElementById('userInput').value;
+            if(!input) return;
+
+            const resultSection = document.getElementById('resultSection');
+            const outputContent = document.getElementById('outputContent');
+            const uncertaintyVal = document.getElementById('uncertaintyVal');
+
+            // Animation de chargement
+            resultSection.classList.remove('hidden');
+            outputContent.innerHTML = "<div class='animate-pulse text-blue-400 font-medium'>Projection des états latents en cours...</div>";
+
+            try {
+                const response = await fetch('https://bluemind-backend.onrender.com/v1/enterprise/simulate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ input: input, context: "User-driven-simulation" })
+                });
+
+                const data = await response.json();
+
+                // Simulation de texte type Perplexity basé sur le retour du World Model
+                outputContent.innerHTML = `
+                    <p>Le système a généré un rollout stratégique basé sur votre input. 
+                    L'état latent final suggère une trajectoire de type <strong>${data.recommendation}</strong>.</p>
+                    <p class="text-sm italic border-t pt-4 mt-4">Note: Cette réponse provient de la dynamique du monde et non d'une base de connaissances pré-entraînée textuelle.</p>
+                `;
+                uncertaintyVal.innerText = (data.uncertainty * 100).toFixed(2) + "%";
+
+            } catch (error) {
+                outputContent.innerHTML = "<span class='text-red-500'>Erreur de connexion avec le backend.</span>";
+            }
+        }
+    </script>
+</body>
+</html>

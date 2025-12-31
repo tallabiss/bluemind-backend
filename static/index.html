@@ -3,131 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluemind.ai | Intelligence Latente</title>
+    <title>Bluemind.ai | Cockpit</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --sf-blue: #00A1E0; --sf-dark-blue: #001639; }
-        body { background-color: #F3F5F9; font-family: 'Salesforce Sans', system-ui, -apple-system, sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
-        .mode-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
-        .mode-btn.active { background-color: white; border-color: var(--sf-blue); color: var(--sf-blue); box-shadow: 0 4px 12px rgba(0,161,224,0.15); }
-        .ai-input:focus { box-shadow: 0 0 0 3px rgba(0, 161, 224, 0.15); border-color: var(--sf-blue); }
-        .gradient-text { background: linear-gradient(135deg, #00A1E0 0%, #0170AD 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        :root { --sf-blue: #009EDB; --sf-blue-dark: #0070d2; }
+        body { background-color: #F3F5F9; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .sf-shadow { box-shadow: 0 2px 4px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1); }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .mode-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
+        .mode-btn.active { border-color: var(--sf-blue); color: var(--sf-blue); font-weight: bold; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen flex flex-col">
 
-    <nav class="bg-white border-b border-gray-200 px-8 py-3 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center space-x-3">
-            <div class="bg-[#00A1E0] p-2 rounded-lg shadow-lg shadow-blue-200">
-                <i class="fa-solid fa-cloud text-white text-lg"></i>
+    <header class="glass-header sticky top-0 z-50 border-b border-gray-200 px-6 py-4">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="bg-[#009EDB] p-2 rounded-lg"><i class="fa-solid fa-brain text-white text-xl"></i></div>
+                <span class="text-2xl font-bold tracking-tight text-gray-800">Bluemind<span class="text-[#009EDB]">.ai</span></span>
             </div>
-            <span class="text-xl font-bold text-[#001639] tracking-tight">Bluemind<span class="text-[#00A1E0]">.ai</span></span>
+            <nav class="flex space-x-6 text-sm font-medium text-gray-600">
+                <button onclick="setMode('search')" id="m-search" class="mode-btn active pb-1">World Search</button>
+                <button onclick="setMode('decision')" id="m-decision" class="mode-btn pb-1">Decision AI</button>
+                <button onclick="setMode('agent')" id="m-agent" class="mode-btn pb-1">Agents Verticaux</button>
+            </nav>
         </div>
-        <div class="flex items-center space-x-6 text-sm font-medium text-gray-500">
-            <a href="/admin" class="hover:text-[#00A1E0] transition">La Forge (Admin)</a>
-            <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-400 to-blue-600 border-2 border-white shadow-sm"></div>
-        </div>
-    </nav>
+    </header>
 
-    <main class="max-w-4xl mx-auto pt-16 px-6">
-        <div class="text-center mb-12">
-            <h1 class="text-5xl font-extrabold text-[#001639] mb-4 tracking-tight">World Search Engine</h1>
-            <p class="text-gray-500 text-lg">Prédisez l'avenir de votre entreprise grâce au modèle JEPA natif.</p>
-        </div>
-
-        <div class="flex p-1 bg-gray-200/50 rounded-2xl mb-8 w-max mx-auto space-x-1">
-            <button onclick="switchMode('search')" id="btn-search" class="mode-btn active px-6 py-2.5 rounded-xl text-sm font-bold flex items-center">
-                <i class="fa-solid fa-magnifying-glass mr-2"></i> World Search
-            </button>
-            <button onclick="switchMode('decision')" id="btn-decision" class="mode-btn px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 flex items-center">
-                <i class="fa-solid fa-chess-knight mr-2"></i> Decision AI
-            </button>
-            <button onclick="switchMode('agent')" id="btn-agent" class="mode-btn px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 flex items-center">
-                <i class="fa-solid fa-robot mr-2"></i> Agent Vertical
-            </button>
+    <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-12">
+        <div class="text-center mb-8">
+            <h1 id="title" class="text-4xl font-extrabold text-gray-900 mb-2">World Search Engine</h1>
+            <p class="text-gray-500">Intelligence latente pour simulations stratégiques.</p>
         </div>
 
-        <div class="glass-card rounded-3xl p-6 transition-all border border-gray-100">
-            <div id="verticalIndicator" class="hidden mb-4">
-                <select id="verticalSelect" class="bg-blue-50 text-[#00A1E0] text-xs font-bold px-3 py-1 rounded-full border-none outline-none">
+        <div class="bg-white rounded-2xl sf-shadow border border-gray-200 p-2">
+            <div id="verticalBox" class="hidden px-4 pt-2">
+                <select id="vSelect" class="text-xs font-bold text-[#009EDB] bg-blue-50 p-1 rounded border-none">
                     <option value="telco">TELCO SPECIALIST</option>
                     <option value="finance">FINANCE ANALYST</option>
-                    <option value="africa">AFRICA STRATEGY</option>
-                    <option value="legal">LEGAL ADVISOR</option>
+                    <option value="africa">REGION AFRIQUE</option>
+                    <option value="legal">IA JURIDIQUE</option>
                 </select>
             </div>
-            
-            <textarea id="mainInput" class="w-full h-40 bg-transparent border-none focus:ring-0 text-xl text-[#001639] placeholder-gray-300 resize-none ai-input" placeholder="Décrivez votre scénario stratégique..."></textarea>
-            
-            <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-50">
-                <div class="flex space-x-3 text-gray-400">
-                    <button title="Joindre un contexte" class="hover:text-[#00A1E0]"><i class="fa-solid fa-paperclip"></i></button>
-                    <button title="Paramètres d'incertitude" class="hover:text-[#00A1E0]"><i class="fa-solid fa-sliders"></i></button>
-                </div>
-                <button onclick="runSimulation()" class="bg-[#00A1E0] hover:bg-[#008bc2] text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-blue-200 transition-all flex items-center group">
-                    <span>Lancer la Simulation</span>
-                    <i class="fa-solid fa-bolt ml-3 group-hover:scale-125 transition"></i>
-                </button>
+            <textarea id="userInput" class="w-full p-4 text-lg bg-transparent border-none focus:ring-0 resize-none h-32" placeholder="Décrivez votre scénario..."></textarea>
+            <div class="flex justify-between items-center p-2 border-t border-gray-100">
+                <span class="text-xs text-gray-400 ml-2" id="statusLabel">Mode: World Search</span>
+                <button onclick="runSimulation()" class="bg-[#009EDB] hover:bg-[#0070d2] text-white px-8 py-2 rounded-full font-bold transition">Simuler</button>
             </div>
         </div>
 
-        <div id="results" class="mt-12 hidden space-y-6 pb-20">
-            <div class="bg-white rounded-3xl p-8 border border-blue-50 shadow-sm relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-5">
-                    <i class="fa-solid fa-brain text-9xl"></i>
+        <div id="resultSection" class="mt-8 space-y-6 hidden">
+            <div class="bg-blue-50 border-l-4 border-[#009EDB] p-6 rounded-r-xl">
+                <div id="outputContent" class="text-gray-700 leading-relaxed"></div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl sf-shadow border border-gray-100 text-center">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Incertitude</span>
+                    <div id="uncertaintyVal" class="text-2xl font-mono text-[#009EDB]">0.00%</div>
                 </div>
-                <h3 class="text-sm font-bold text-[#00A1E0] uppercase tracking-widest mb-4 flex items-center">
-                    <span class="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span> Projection du World Model
-                </h3>
-                <div id="resultText" class="text-[#001639] text-lg leading-relaxed"></div>
-                
-                <div class="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-gray-50">
-                    <div>
-                        <span class="block text-xs text-gray-400 uppercase font-bold">Incertitude Latente</span>
-                        <div id="uncertainty" class="text-2xl font-mono text-[#00A1E0]">0.0%</div>
-                    </div>
-                    <div>
-                        <span class="block text-xs text-gray-400 uppercase font-bold">Fiabilité GEP</span>
-                        <div class="text-2xl font-mono text-green-500 uppercase">Haute</div>
-                    </div>
+                <div class="bg-white p-4 rounded-xl sf-shadow border border-gray-100 text-center">
+                    <span class="text-xs text-gray-400 uppercase font-bold">Fiabilité</span>
+                    <div class="text-2xl font-mono text-green-500 italic">Optimale</div>
                 </div>
             </div>
         </div>
     </main>
 
     <script>
-        let currentMode = 'search';
-
-        function switchMode(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active', 'text-[#00A1E0]'));
-            document.getElementById(`btn-${mode}`).classList.add('active');
-            document.getElementById('verticalIndicator').classList.toggle('hidden', mode !== 'agent');
+        let mode = 'search';
+        function setMode(m) {
+            mode = m;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('m-'+m).classList.add('active');
+            document.getElementById('verticalBox').classList.toggle('hidden', m !== 'agent');
+            document.getElementById('title').innerText = m === 'search' ? 'World Search Engine' : (m === 'decision' ? 'Decision AI' : 'Agents Verticaux');
+            document.getElementById('statusLabel').innerText = 'Mode: ' + m;
         }
 
         async function runSimulation() {
-            const input = document.getElementById('mainInput').value;
+            const input = document.getElementById('userInput').value;
             if(!input) return;
-
-            const results = document.getElementById('results');
-            const resultText = document.getElementById('resultText');
-            results.classList.remove('hidden');
-            resultText.innerHTML = `<div class="animate-pulse flex space-x-2"><div class="h-2 w-2 bg-blue-400 rounded-full"></div><div class="h-2 w-2 bg-blue-400 rounded-full"></div><div class="h-2 w-2 bg-blue-400 rounded-full"></div></div>`;
+            const resSection = document.getElementById('resultSection');
+            resSection.classList.remove('hidden');
+            document.getElementById('outputContent').innerHTML = "<div class='animate-pulse'>Calcul des trajectoires latentes...</div>";
 
             try {
                 const response = await fetch('/v1/enterprise/simulate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ input: input, context: currentMode })
+                    body: JSON.stringify({ input: input, context: mode })
                 });
                 const data = await response.json();
-                resultText.innerText = "Simulation terminée. Le modèle identifie une convergence vers : " + data.recommendation;
-                document.getElementById('uncertainty').innerText = (data.uncertainty * 100).toFixed(1) + "%";
-            } catch (e) {
-                resultText.innerText = "Erreur de connexion au moteur JEPA.";
-            }
+                document.getElementById('outputContent').innerHTML = `<p>Analyse complétée : <strong>${data.recommendation}</strong></p>`;
+                document.getElementById('uncertaintyVal').innerText = (data.uncertainty * 100).toFixed(2) + "%";
+            } catch (e) { alert("Erreur backend"); }
         }
     </script>
 </body>

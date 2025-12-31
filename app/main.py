@@ -22,3 +22,6 @@ async def read_index():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"error": "index.html not found in static folder"}
+    @app.get("/admin", include_in_schema=False)
+async def read_admin():
+    return FileResponse('static/admin.html')

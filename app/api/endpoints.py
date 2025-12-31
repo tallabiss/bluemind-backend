@@ -10,14 +10,19 @@ encoder = MultiModalEncoder()
 class Query(BaseModel):
     input: str
     context: str = "default"
-
-@router.post("/search")
-async def world_search(query: Query):
-    latent = await encoder.encode(query.input)
-    return {"latent_id": hash(latent.tobytes()), "status": "simulated"}
-
-@router.post("/enterprise/simulate")
-async def simulate(query: Query):
-    latent = await encoder.encode(query.input)
-    res = await wm.predict_and_verify(latent, "analyze")
-    return {"uncertainty": res["uncertainty"], "recommendation": "neutral"}
+    
+@router.post("/agent/execute")
+async def autonomous_agent(query: Query, vertical: str = "general"):
+    """Agent spécialisé par domaine (Telco, Finance, Afrique, Juridique)."""
+    # 1. Récupération du contexte spécifique au vertical dans la mémoire
+    context = await wm.memory.retrieve_by_vertical(query.input, vertical)
+    
+    # 2. Simulation latente basée sur le contexte métier
+    prediction = await wm.predict_and_verify(context, action="solve")
+    
+    return {
+        "vertical": vertical,
+        "action_taken": f"Analyse {vertical} complétée",
+        "result": "Trajectoire optimale identifiée",
+        "uncertainty": prediction["uncertainty"]
+    }

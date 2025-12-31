@@ -3,25 +3,25 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
 
-# Importez votre router API
+# Import du router de votre API
 from app.api.endpoints import router
 
-app = FastAPI()
+app = FastAPI(title="Bluemind.ai Engine")
 
-# IMPORTANT : On définit les routes API d'abord
+# 1. Montage des fichiers statiques (CSS, JS, Images)
+# Vérifiez que le dossier 'static' existe bien à la racine
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# 2. Inclusion des routes de l'API
 app.include_router(router, prefix="/v1")
 
-# Servir les fichiers statiques (CSS/JS)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Route PRIORITAIRE pour l'interface graphique
+# 3. Route pour l'interface UTILISATEUR (Cockpit)
 @app.get("/")
 async def read_index():
-    # Vérifie que le fichier existe pour éviter une erreur 500
-    index_path = os.path.join("static", "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path)
-    return {"error": "index.html not found in static folder"}
-    @app.get("/admin", include_in_schema=False)
+    return FileResponse('static/index.html')
+
+# 4. Route pour l'interface ADMIN (Forge)
+@app.get("/admin")
 async def read_admin():
     return FileResponse('static/admin.html')

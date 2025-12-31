@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Bluemind Admin | Data Ingestion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-10">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
+        <h1 class="text-2xl font-bold text-[#009EDB] mb-6">Forge Bluemind - Gestion des Agents</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="border p-6 rounded-xl">
+                <h3 class="font-bold mb-4">Ingérer de la connaissance</h3>
+                <select id="adminVertical" class="w-full mb-4 p-2 border rounded">
+                    <option value="finance">Agent Finance</option>
+                    <option value="telco">Agent Telco</option>
+                    <option value="juridique">Agent Juridique</option>
+                </select>
+                <input type="file" id="pdfFile" class="mb-4 text-sm">
+                <button onclick="adminIngest()" class="w-full bg-[#009EDB] text-white py-2 rounded hover:bg-blue-600 transition">
+                    Entraîner l'Agent
+                </button>
+            </div>
+
+            <div class="bg-blue-50 p-6 rounded-xl">
+                <h3 class="font-bold mb-2 text-blue-800">État du World Model</h3>
+                <ul class="text-sm space-y-2">
+                    <li>Vecteurs en mémoire : <span id="memCount" class="font-mono">0</span></li>
+                    <li>Surprises détectées : <span class="font-mono text-orange-500">12</span></li>
+                    <li>Santé de l'index : <span class="text-green-600">Optimal</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function adminIngest() {
+            const vertical = document.getElementById('adminVertical').value;
+            const file = document.getElementById('pdfFile').files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('vertical', vertical);
+
+            const res = await fetch('/v1/enterprise/ingest', { method: 'POST', body: formData });
+            const data = await res.json();
+            document.getElementById('memCount').innerText = data.memory_size;
+            alert("Connaissance injectée dans l'agent " + vertical);
+        }
+    </script>
+</body>
+</html>

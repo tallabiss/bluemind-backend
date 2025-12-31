@@ -2,82 +2,167 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Bluemind.ai | Admin Forge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluemind Admin | La Forge</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --sf-blue: #009EDB; }
-        body { background-color: #F3F5F9; font-family: 'Segoe UI', sans-serif; }
-        .sf-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+        :root { 
+            --sf-blue-accent: #0176D3; 
+            --bg-dark: #001639; /* Bleu Navy profond */
+            --card-dark: #00235a; 
+        }
+        body { 
+            background-color: var(--bg-dark); 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            color: #E0E6ED;
+        }
+        .admin-card { 
+            background: var(--card-dark); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 1.5rem;
+        }
+        .input-dark {
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            transition: all 0.3s;
+        }
+        .input-dark:focus {
+            border-color: var(--sf-blue-accent) !important;
+            box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.3);
+        }
+        .btn-primary {
+            background-color: var(--sf-blue-accent);
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #015ba1;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
-<body class="p-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h1 class="text-3xl font-bold text-gray-800"><i class="fa-solid fa-hammer text-[#009EDB] mr-3"></i>La Forge Admin</h1>
-            <a href="/" class="text-[#009EDB] text-sm font-bold hover:underline">Retour au Cockpit</a>
+<body class="min-h-screen flex flex-col">
+
+    <header class="border-b border-white/10 px-8 py-5 flex justify-between items-center bg-[#001b44]">
+        <div class="flex items-center space-x-3">
+            <div class="bg-blue-600 p-2 rounded-lg shadow-lg">
+                <i class="fa-solid fa-screwdriver-wrench text-white text-xl"></i>
+            </div>
+            <div>
+                <span class="text-xl font-bold tracking-tight text-white italic">Bluemind <span class="text-blue-400">Forge</span></span>
+                <p class="text-[10px] text-blue-300 font-mono tracking-widest uppercase">Administration Centrale</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-6">
+            <a href="/" class="text-sm font-medium text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-eye mr-2"></i>Voir le Cockpit
+            </a>
+            <div class="h-10 w-10 rounded-full border-2 border-blue-500 flex items-center justify-center bg-blue-900">
+                <i class="fa-solid fa-user-shield text-blue-300"></i>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl mx-auto w-full px-6 py-12">
+        
+        <div class="mb-10">
+            <h2 class="text-2xl font-bold text-white mb-2">Ingestion & Entraînement</h2>
+            <p class="text-gray-400">Alimentez les agents verticaux avec de nouvelles connaissances stratégiques.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="md:col-span-2 bg-white rounded-2xl sf-shadow p-8">
-                <h2 class="text-lg font-bold mb-6 border-b pb-2">Nourrir les Agents</h2>
-                
-                <label class="block text-xs font-bold text-gray-400 mb-2 uppercase">Sélectionner l'Agent Cible</label>
-                <select id="vAdmin" class="w-full p-3 bg-gray-50 border rounded-xl mb-6 outline-none focus:border-[#009EDB]">
-                    <option value="telco">Agent Telco</option>
-                    <option value="finance">Agent Finance</option>
-                    <option value="africa">Stratégie Afrique</option>
-                    <option value="legal">IA Juridique</option>
-                </select>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-6">
+                <div class="admin-card p-8">
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-blue-300 uppercase mb-2 tracking-wider">Cible de l'entraînement</label>
+                        <select id="vAdmin" class="input-dark w-full p-4 rounded-xl outline-none appearance-none">
+                            <option value="world_search">World Search Engine (Global)</option>
+                            <option value="telco">Agent Spécialisé Telco</option>
+                            <option value="finance">Agent Decision Finance</option>
+                            <option value="africa">Vertical Afrique Stratégie</option>
+                        </select>
+                    </div>
 
-                <div class="border-2 border-dashed border-gray-200 rounded-2xl p-10 text-center hover:bg-blue-50 transition cursor-pointer" onclick="document.getElementById('fileInp').click()">
-                    <i class="fa-solid fa-file-pdf text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500 italic" id="fileName">Cliquez pour uploader un document (PDF)</p>
-                    <input type="file" id="fileInp" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
+                    <div class="mb-8">
+                        <label class="block text-xs font-bold text-blue-300 uppercase mb-2 tracking-wider">Source de données (PDF / TEXT)</label>
+                        <div class="border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:bg-white/5 transition cursor-pointer group" onclick="document.getElementById('fileInp').click()">
+                            <i class="fa-solid fa-cloud-arrow-up text-5xl text-gray-600 group-hover:text-blue-400 transition mb-4"></i>
+                            <p class="text-gray-400" id="fileName">Glissez-déposez vos rapports ici ou cliquez pour parcourir</p>
+                            <input type="file" id="fileInp" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
+                        </div>
+                    </div>
+
+                    <button onclick="ingestData()" class="btn-primary w-full text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center space-x-3">
+                        <i class="fa-solid fa-microchip"></i>
+                        <span>Lancer l'Ingestion Sémantique</span>
+                    </button>
                 </div>
-
-                <button onclick="ingestData()" class="w-full mt-6 bg-[#009EDB] hover:bg-[#0070d2] text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-200">
-                    Lancer l'Ingestion Latente
-                </button>
             </div>
 
             <div class="space-y-6">
-                <div class="bg-white rounded-2xl sf-shadow p-6">
-                    <h3 class="text-xs font-bold text-gray-400 uppercase mb-4">Statut de la Mémoire</h3>
-                    <div class="text-3xl font-bold text-[#009EDB]" id="vCount">1,240</div>
-                    <p class="text-xs text-gray-500">Vecteurs sémantiques indexés</p>
-                </div>
-                <div class="bg-[#001639] rounded-2xl sf-shadow p-6 text-white">
-                    <h3 class="text-xs font-bold text-blue-300 uppercase mb-4">Santé du Système</h3>
-                    <div class="text-xl font-bold">Opérationnel</div>
-                    <div class="mt-4 flex space-x-1">
-                        <div class="h-1 flex-grow bg-green-500 rounded"></div>
-                        <div class="h-1 flex-grow bg-green-500 rounded"></div>
-                        <div class="h-1 flex-grow bg-gray-600 rounded"></div>
+                <div class="admin-card p-6 border-l-4 border-blue-500">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-tighter">État du World Model</h3>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-4xl font-mono font-bold text-white" id="vCount">1,240</div>
+                            <p class="text-[10px] text-blue-400 font-bold uppercase mt-1">Vecteurs actifs</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-green-400 text-xs font-bold"><i class="fa-solid fa-circle-check mr-1"></i> Sync</div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="admin-card p-6">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-tighter">Santé des Agents</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-400 italic">Agent Telco</span>
+                            <span class="text-green-500 font-bold">READY</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-400 italic">Agent Finance</span>
+                            <span class="text-green-500 font-bold">READY</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-400 italic">IA Juridique</span>
+                            <span class="text-orange-400 font-bold">UPDATING</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-6">
+                    <p class="text-[11px] text-blue-300 leading-relaxed italic">
+                        <i class="fa-solid fa-info-circle mr-1"></i> L'ingestion transforme vos documents en coordonnées mathématiques dans l'espace latent de Bluemind.
+                    </p>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer class="py-10 text-center text-gray-600 text-[10px] uppercase tracking-[0.2em]">
+        Bluemind.ai Forge • Version 0.1 • Système de contrôle sécurisé
+    </footer>
 
     <script>
         async function ingestData() {
             const file = document.getElementById('fileInp').files[0];
             const vert = document.getElementById('vAdmin').value;
-            if(!file) return alert("Sélectionnez un fichier.");
+            if(!file) return alert("Erreur : Aucun fichier sélectionné.");
 
             const fd = new FormData();
             fd.append('file', file);
             fd.append('vertical', vert);
 
-            alert("Ingestion lancée pour " + vert);
+            const btn = document.querySelector('.btn-primary');
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> <span>En cours...</span>';
+            btn.disabled = true;
+
             try {
                 const res = await fetch('/v1/enterprise/ingest', { method: 'POST', body: fd });
                 const data = await res.json();
                 document.getElementById('vCount').innerText = data.memory_size;
-                alert("Mémoire mise à jour !");
-            } catch(e) { alert("Erreur"); }
-        }
-    </script>
-</body>
-</html>
+                alert("

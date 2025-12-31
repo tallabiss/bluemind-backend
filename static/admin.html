@@ -165,4 +165,14 @@
                 const res = await fetch('/v1/enterprise/ingest', { method: 'POST', body: fd });
                 const data = await res.json();
                 document.getElementById('vCount').innerText = data.memory_size;
-                alert("
+                alert("Succès : Les connaissances ont été injectées dans " + vert);
+            } catch(e) { 
+                alert("Erreur réseau lors de l'ingestion."); 
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-microchip"></i> <span>Lancer l\'Ingestion Sémantique</span>';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

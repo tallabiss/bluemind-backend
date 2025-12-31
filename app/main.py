@@ -1,14 +1,24 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
+# Importez votre router API
 from app.api.endpoints import router
 
-app = FastAPI(
-    title="Bluemind.ai Backend",
-    description="World Model-based Intelligence System (JEPA Architecture)",
-    version="0.1.0"
-)
+app = FastAPI()
 
+# IMPORTANT : On définit les routes API d'abord
 app.include_router(router, prefix="/v1")
 
+# Servir les fichiers statiques (CSS/JS)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Route PRIORITAIRE pour l'interface graphique
 @app.get("/")
-async def health():
-    return {"status": "operational", "engine": "JEPA-V1", "mode": "latent-inference"}
+async def read_index():
+    # Vérifie que le fichier existe pour éviter une erreur 500
+    index_path = os.path.join("static", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"error": "index.html not found in static folder"}

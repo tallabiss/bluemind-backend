@@ -2,50 +2,120 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Bluemind Admin | Data Ingestion</title>
+    <title>Bluemind Admin | La Forge</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --sf-blue: #00A1E0; }
+        body { background-color: #001639; font-family: 'Segoe UI', sans-serif; }
+        .admin-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; transition: 0.3s; }
+        .admin-card:hover { border-color: var(--sf-blue); background: rgba(255, 255, 255, 0.05); }
+        input, select { background: rgba(255, 255, 255, 0.05) !important; color: white !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+    </style>
 </head>
-<body class="bg-gray-100 p-10">
-    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
-        <h1 class="text-2xl font-bold text-[#009EDB] mb-6">Forge Bluemind - Gestion des Agents</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="border p-6 rounded-xl">
-                <h3 class="font-bold mb-4">Ingérer de la connaissance</h3>
-                <select id="adminVertical" class="w-full mb-4 p-2 border rounded">
-                    <option value="finance">Agent Finance</option>
-                    <option value="telco">Agent Telco</option>
-                    <option value="juridique">Agent Juridique</option>
-                </select>
-                <input type="file" id="pdfFile" class="mb-4 text-sm">
-                <button onclick="adminIngest()" class="w-full bg-[#009EDB] text-white py-2 rounded hover:bg-blue-600 transition">
-                    Entraîner l'Agent
-                </button>
+<body class="text-white min-h-screen">
+
+    <div class="max-w-6xl mx-auto py-12 px-6">
+        <div class="flex justify-between items-center mb-16">
+            <div>
+                <h1 class="text-3xl font-bold flex items-center">
+                    <i class="fa-solid fa-hammer mr-4 text-[#00A1E0]"></i> Forge Bluemind
+                </h1>
+                <p class="text-gray-400 mt-2">Gestion des agents autonomes et ingestion de données</p>
+            </div>
+            <a href="/" class="text-sm border border-white/20 px-4 py-2 rounded-xl hover:bg-white/10 transition">Retour au Cockpit</a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-2 space-y-8">
+                <div class="admin-card p-8">
+                    <h2 class="text-xl font-bold mb-6 flex items-center">
+                        <i class="fa-solid fa-file-import mr-3 text-blue-400"></i> Nouvelle Ingestion
+                    </h2>
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Agent Cible</label>
+                            <select id="vSelect" class="w-full p-3 rounded-xl outline-none">
+                                <option value="telco">Agent Telco</option>
+                                <option value="finance">Agent Finance</option>
+                                <option value="legal">IA Juridique</option>
+                                <option value="africa">Région Afrique</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Type de source</label>
+                            <select class="w-full p-3 rounded-xl outline-none">
+                                <option>PDF Document</option>
+                                <option>CSV Data</option>
+                                <option>JSON Feed</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:border-blue-500/50 transition cursor-pointer" onclick="document.getElementById('fileInp').click()">
+                        <i class="fa-solid fa-cloud-arrow-up text-4xl mb-4 text-gray-600"></i>
+                        <p class="text-gray-400">Glissez-déposez vos fichiers ici ou <span class="text-blue-400">parcourez</span></p>
+                        <input type="file" id="fileInp" class="hidden" onchange="updateFileName(this)">
+                        <div id="fileName" class="mt-4 text-blue-300 font-mono text-sm"></div>
+                    </div>
+
+                    <button onclick="uploadData()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl shadow-xl shadow-blue-900/20 transition">
+                        Entraîner l'Agent Spécifié
+                    </button>
+                </div>
             </div>
 
-            <div class="bg-blue-50 p-6 rounded-xl">
-                <h3 class="font-bold mb-2 text-blue-800">État du World Model</h3>
-                <ul class="text-sm space-y-2">
-                    <li>Vecteurs en mémoire : <span id="memCount" class="font-mono">0</span></li>
-                    <li>Surprises détectées : <span class="font-mono text-orange-500">12</span></li>
-                    <li>Santé de l'index : <span class="text-green-600">Optimal</span></li>
-                </ul>
+            <div class="space-y-8">
+                <div class="admin-card p-6">
+                    <h3 class="text-sm font-bold text-gray-500 uppercase mb-6">État de la Mémoire</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between text-xs mb-2"><span>Espace Latent</span><span>78%</span></div>
+                            <div class="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                                <div class="bg-blue-500 h-full w-[78%]"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400 italic">Vecteurs indexés :</span>
+                            <span class="font-mono text-xl" id="vecCount">1,248</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-card p-6 border-orange-500/20">
+                    <h3 class="text-sm font-bold text-orange-400 uppercase mb-4">Anomalies de Prediction</h3>
+                    <div class="text-3xl font-bold">14</div>
+                    <p class="text-xs text-gray-500 mt-2">Divergences détectées lors des derniers rollouts.</p>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        async function adminIngest() {
-            const vertical = document.getElementById('adminVertical').value;
-            const file = document.getElementById('pdfFile').files[0];
+        function updateFileName(input) {
+            document.getElementById('fileName').innerText = input.files[0].name;
+        }
+
+        async function uploadData() {
+            const file = document.getElementById('fileInp').files[0];
+            const vertical = document.getElementById('vSelect').value;
+            if(!file) return alert("Choisissez un fichier.");
+
             const formData = new FormData();
             formData.append('file', file);
             formData.append('vertical', vertical);
 
-            const res = await fetch('/v1/enterprise/ingest', { method: 'POST', body: formData });
-            const data = await res.json();
-            document.getElementById('memCount').innerText = data.memory_size;
-            alert("Connaissance injectée dans l'agent " + vertical);
+            alert(`Envoi de ${file.name} vers l'agent ${vertical}...`);
+            
+            try {
+                const res = await fetch('/v1/enterprise/ingest', { method: 'POST', body: formData });
+                const data = await res.json();
+                document.getElementById('vecCount').innerText = data.memory_size;
+                alert("Mémoire mise à jour avec succès.");
+            } catch (e) {
+                alert("Erreur lors de l'ingestion.");
+            }
         }
     </script>
 </body>

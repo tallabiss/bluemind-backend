@@ -1,12 +1,10 @@
 import os
 
-# Configuration des chemins
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERTICALS_DIR = os.path.join(BASE_DIR, "app", "verticals")
 
 class PromptManager:
     def __init__(self):
-        # Création automatique du dossier s'il manque
         if not os.path.exists(VERTICALS_DIR):
             os.makedirs(VERTICALS_DIR)
 

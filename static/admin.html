@@ -9,7 +9,7 @@
     <style>
         :root { 
             --sf-blue-accent: #0176D3; 
-            --bg-dark: #001639; /* Bleu Navy profond */
+            --bg-dark: #001639; 
             --card-dark: #00235a; 
         }
         body { 
@@ -41,6 +41,11 @@
             background-color: #015ba1;
             transform: translateY(-1px);
         }
+        .xml-editor {
+            font-family: 'Fira Code', monospace;
+            background: #000b1e !important;
+            color: #4ade80 !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -65,40 +70,36 @@
         </div>
     </header>
 
-    <main class="flex-grow max-w-5xl mx-auto w-full px-6 py-12">
+    <main class="flex-grow max-w-6xl mx-auto w-full px-6 py-12">
         
-        <div class="mb-10">
-            <h2 class="text-2xl font-bold text-white mb-2">Ingestion & Entraînement</h2>
-            <p class="text-gray-400">Alimentez les agents verticaux avec de nouvelles connaissances stratégiques.</p>
+        <div class="mb-10 flex justify-between items-end">
+            <div>
+                <h2 class="text-2xl font-bold text-white mb-2">Configuration des Agents</h2>
+                <p class="text-gray-400 text-sm">Contrôlez les directives de comportement et le protocole de citation.</p>
+            </div>
+            <button onclick="saveAllConfigs()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-bold text-sm transition">
+                <i class="fa-solid fa-floppy-disk mr-2"></i>Sauvegarder les Directives
+            </button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
             <div class="lg:col-span-2 space-y-6">
-                <div class="admin-card p-8">
-                    <div class="mb-6">
-                        <label class="block text-xs font-bold text-blue-300 uppercase mb-2 tracking-wider">Cible de l'entraînement</label>
-                        <select id="vAdmin" class="input-dark w-full p-4 rounded-xl outline-none appearance-none">
-                            <option value="world_search">World Search Engine (Global)</option>
-                            <option value="telco">Agent Spécialisé Telco</option>
-                            <option value="finance">Agent Decision Finance</option>
-                            <option value="africa">Vertical Afrique Stratégie</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-8">
-                        <label class="block text-xs font-bold text-blue-300 uppercase mb-2 tracking-wider">Source de données (PDF / TEXT)</label>
-                        <div class="border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:bg-white/5 transition cursor-pointer group" onclick="document.getElementById('fileInp').click()">
-                            <i class="fa-solid fa-cloud-arrow-up text-5xl text-gray-600 group-hover:text-blue-400 transition mb-4"></i>
-                            <p class="text-gray-400" id="fileName">Glissez-déposez vos rapports ici ou cliquez pour parcourir</p>
-                            <input type="file" id="fileInp" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
+                <div class="admin-card p-6">
+                    <label class="block text-xs font-bold text-blue-300 uppercase mb-4 tracking-wider">Master System Prompt (Structure XML)</label>
+                    <textarea id="promptEditor" class="input-dark xml-editor w-full h-[500px] p-4 rounded-xl outline-none resize-none text-sm leading-relaxed" spellcheck="false"></textarea>
+                    
+                    <div class="mt-6 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="text-sm font-bold text-orange-400">Diagnostic de Conformité</h4>
+                                <p id="diagStatus" class="text-[10px] text-gray-500 italic">Vérifiez l'adhérence aux protocoles de citation avant déploiement.</p>
+                            </div>
+                            <button onclick="runDiagnostic()" class="bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold py-2 px-4 rounded-lg uppercase transition">
+                                Lancer le Test
+                            </button>
                         </div>
                     </div>
-
-                    <button onclick="ingestData()" class="btn-primary w-full text-white font-bold py-5 rounded-2xl shadow-xl flex items-center justify-center space-x-3">
-                        <i class="fa-solid fa-microchip"></i>
-                        <span>Lancer l'Ingestion Sémantique</span>
-                    </button>
                 </div>
             </div>
 
@@ -117,59 +118,115 @@
                 </div>
 
                 <div class="admin-card p-6">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-tighter">Ingestion Sémantique</h3>
+                    <div class="mb-4">
+                        <select id="vAdmin" class="input-dark w-full p-3 rounded-lg text-xs outline-none appearance-none">
+                            <option value="world_search">World Search (Global)</option>
+                            <option value="telco">Agent Telco</option>
+                        </select>
+                    </div>
+                    <div class="border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:bg-white/5 transition cursor-pointer mb-4" onclick="document.getElementById('fileInp').click()">
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-600 mb-2"></i>
+                        <p class="text-[10px] text-gray-400" id="fileName">PDF / TEXT</p>
+                        <input type="file" id="fileInp" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
+                    </div>
+                    <button onclick="ingestData()" class="btn-primary w-full text-white text-xs font-bold py-3 rounded-xl shadow-lg">
+                        Injecter Connaissances
+                    </button>
+                </div>
+
+                <div class="admin-card p-6">
                     <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-tighter">Santé des Agents</h3>
                     <div class="space-y-4">
-                        <div class="flex justify-between items-center text-sm">
+                        <div class="flex justify-between items-center text-xs">
                             <span class="text-gray-400 italic">Agent Telco</span>
                             <span class="text-green-500 font-bold">READY</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-400 italic">Agent Finance</span>
-                            <span class="text-green-500 font-bold">READY</span>
-                        </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-gray-400 italic">IA Juridique</span>
-                            <span class="text-orange-400 font-bold">UPDATING</span>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-gray-400 italic">IA Compliance</span>
+                            <span id="complianceStatus" class="text-green-500 font-bold">ACTIVE</span>
                         </div>
                     </div>
-                </div>
-
-                <div class="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-6">
-                    <p class="text-[11px] text-blue-300 leading-relaxed italic">
-                        <i class="fa-solid fa-info-circle mr-1"></i> L'ingestion transforme vos documents en coordonnées mathématiques dans l'espace latent de Bluemind.
-                    </p>
                 </div>
             </div>
         </div>
     </main>
 
     <footer class="py-10 text-center text-gray-600 text-[10px] uppercase tracking-[0.2em]">
-        Bluemind.ai Forge • Version 0.1 • Système de contrôle sécurisé
+        Bluemind.ai Forge • Version 1.0 • Architecture Hard-Locked
     </footer>
 
     <script>
+        // Initialisation du Prompt par défaut au chargement
+        window.onload = () => {
+            const savedPrompt = localStorage.getItem('master_prompt');
+            const defaultPrompt = `<behavior_guidelines>
+    - You are the Bluemind Search & Telco Engine.
+    - Maintain an objective, expert-level engineering tone.
+</behavior_guidelines>
+
+<tool_protocols>
+    - Use Web Search to retrieve factual data.
+    - Cross-reference with internal vectors.
+</tool_protocols>
+
+<citation_logic>
+    - Every claim must be wrapped in <antml:cite index="SOURCE_INDEX">Claim text</antml:cite>.
+</citation_logic>`;
+            
+            document.getElementById('promptEditor').value = savedPrompt || defaultPrompt;
+        };
+
+        function saveAllConfigs() {
+            const prompt = document.getElementById('promptEditor').value;
+            localStorage.setItem('master_prompt', prompt);
+            alert("Directives sauvegardées. Le Cockpit utilisera désormais ces règles.");
+        }
+
+        async function runDiagnostic() {
+            const prompt = document.getElementById('promptEditor').value;
+            const status = document.getElementById('diagStatus');
+            
+            try {
+                const res = await fetch('/v1/admin/diagnostic', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ system_prompt: prompt })
+                });
+                const data = await res.json();
+                
+                if (data.status === "passed") {
+                    status.innerHTML = `<span class="text-green-400 font-bold">PASSED : Score ${data.score}%</span> - Protocole de citation validé.`;
+                } else {
+                    status.innerHTML = `<span class="text-red-400 font-bold">FAILED :</span> ${data.issues[0]}`;
+                }
+            } catch (e) {
+                status.innerText = "Erreur : Assurez-vous que le backend est en ligne.";
+            }
+        }
+
         async function ingestData() {
             const file = document.getElementById('fileInp').files[0];
             const vert = document.getElementById('vAdmin').value;
-            if(!file) return alert("Erreur : Aucun fichier sélectionné.");
+            if(!file) return alert("Aucun fichier sélectionné.");
 
             const fd = new FormData();
             fd.append('file', file);
             fd.append('vertical', vert);
 
             const btn = document.querySelector('.btn-primary');
-            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> <span>En cours...</span>';
+            btn.innerText = 'Ingestion...';
             btn.disabled = true;
 
             try {
                 const res = await fetch('/v1/enterprise/ingest', { method: 'POST', body: fd });
                 const data = await res.json();
                 document.getElementById('vCount').innerText = data.memory_size;
-                alert("Succès : Les connaissances ont été injectées dans " + vert);
+                alert("Mémoire vectorielle mise à jour.");
             } catch(e) { 
-                alert("Erreur réseau lors de l'ingestion."); 
+                alert("Erreur lors de l'ingestion."); 
             } finally {
-                btn.innerHTML = '<i class="fa-solid fa-microchip"></i> <span>Lancer l\'Ingestion Sémantique</span>';
+                btn.innerText = 'Injecter Connaissances';
                 btn.disabled = false;
             }
         }

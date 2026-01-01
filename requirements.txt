@@ -3,3 +3,5 @@ uvicorn
 zhipuai
 pydantic
 python-multipart
+sniffio
+httpx

@@ -1,241 +1,27 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bluemind Admin | La Forge</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root { 
-            --sf-blue-accent: #0176D3; 
-            --bg-dark: #001639; 
-            --card-dark: #00235a; 
-        }
-        body { 
-            background-color: var(--bg-dark); 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            color: #E0E6ED;
-        }
-        .admin-card { 
-            background: var(--card-dark); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            border-radius: 1.5rem;
-        }
-        .input-dark {
-            background: rgba(0, 0, 0, 0.2) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: white !important;
-            transition: all 0.3s;
-        }
-        .input-dark:focus {
-            border-color: var(--sf-blue-accent) !important;
-            box-shadow: 0 0 0 2px rgba(1, 118, 211, 0.3);
-        }
-        .btn-primary {
-            background-color: var(--sf-blue-accent);
-            transition: all 0.3s;
-        }
-        .btn-primary:hover {
-            background-color: #015ba1;
-            transform: translateY(-1px);
-        }
-        .xml-editor {
-            font-family: 'Fira Code', monospace;
-            background: #000b1e !important;
-            color: #4ade80 !important;
-        }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col">
-
-    <header class="border-b border-white/10 px-8 py-5 flex justify-between items-center bg-[#001b44]">
-        <div class="flex items-center space-x-3">
-            <div class="bg-blue-600 p-2 rounded-lg shadow-lg">
-                <i class="fa-solid fa-screwdriver-wrench text-white text-xl"></i>
-            </div>
-            <div>
-                <span class="text-xl font-bold tracking-tight text-white italic">Bluemind <span class="text-blue-400">Forge</span></span>
-                <p class="text-[10px] text-blue-300 font-mono tracking-widest uppercase">Administration Centrale</p>
-            </div>
-        </div>
-        <div class="flex items-center space-x-6">
-            <a href="/" class="text-sm font-medium text-gray-400 hover:text-white transition">
-                <i class="fa-solid fa-eye mr-2"></i>Voir le Cockpit
-            </a>
-            <div class="h-10 w-10 rounded-full border-2 border-blue-500 flex items-center justify-center bg-blue-900">
-                <i class="fa-solid fa-user-shield text-blue-300"></i>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-6xl mx-auto w-full px-6 py-12">
-        
-        <div class="mb-10 flex justify-between items-end">
-            <div>
-                <h2 class="text-2xl font-bold text-white mb-2">Configuration des Agents</h2>
-                <p class="text-gray-400 text-sm">Contrôlez les directives par fichiers .txt stockés dans <code class="text-blue-400">app/verticals/</code>.</p>
-            </div>
-            <button onclick="saveAllConfigs()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl font-bold text-sm transition shadow-lg">
-                <i class="fa-solid fa-floppy-disk mr-2"></i>Mettre à jour le fichier .txt
-            </button>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
-            <div class="lg:col-span-2 space-y-6">
-                <div class="admin-card p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <label class="block text-xs font-bold text-blue-300 uppercase tracking-wider">Éditeur de Prompt (Format XML)</label>
-                        <span id="currentFile" class="text-[10px] font-mono text-gray-500">file: --</span>
-                    </div>
-                    <textarea id="promptEditor" class="input-dark xml-editor w-full h-[500px] p-4 rounded-xl outline-none resize-none text-sm leading-relaxed" spellcheck="false"></textarea>
-                    
-                    <div class="mt-6 p-4 bg-orange-500/10 border border-orange-500/20 rounded-xl">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-sm font-bold text-orange-400">Diagnostic de Conformité</h4>
-                                <p id="diagStatus" class="text-[10px] text-gray-500 italic">Vérifiez l'adhérence aux protocoles de citation.</p>
-                            </div>
-                            <button onclick="runDiagnostic()" class="bg-orange-600 hover:bg-orange-700 text-white text-[10px] font-bold py-2 px-4 rounded-lg uppercase transition">
-                                Lancer le Test
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div class="admin-card p-6 border-l-4 border-blue-500">
-                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-tighter">Verticale Active</h3>
-                    <div class="mb-4">
-                        <select id="vAdmin" class="input-dark w-full p-3 rounded-lg text-xs outline-none appearance-none cursor-pointer">
-                            <option value="telco">Agent Telco (telco.txt)</option>
-                            <option value="finance">Agent Finance (finance.txt)</option>
-                            <option value="africa">Agent Afrique (africa.txt)</option>
-                            <option value="world_search">World Search (world_search.txt)</option>
-                        </select>
-                    </div>
-                    <p class="text-[10px] text-gray-500 italic">La sélection charge automatiquement le fichier texte correspondant depuis le serveur.</p>
-                </div>
-
-                <div class="admin-card p-6">
-                    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-tighter">Ingestion Sémantique</h3>
-                    <div class="border-2 border-dashed border-white/10 rounded-xl p-6 text-center hover:bg-white/5 transition cursor-pointer mb-4" onclick="document.getElementById('fileInp').click()">
-                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-600 mb-2"></i>
-                        <p class="text-[10px] text-gray-400" id="fileName">PDF / TEXT / DOCX</p>
-                        <input type="file" id="fileInp" class="hidden" onchange="document.getElementById('fileName').innerText = this.files[0].name">
-                    </div>
-                    <button onclick="ingestData()" class="btn-primary w-full text-white text-xs font-bold py-3 rounded-xl shadow-lg">
-                        Injecter Connaissances
-                    </button>
-                </div>
-
-                <div class="admin-card p-6">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-gray-400 italic">Serveur Render</span>
-                        <span class="text-green-500 font-bold"><i class="fa-solid fa-circle text-[8px] mr-1"></i> ONLINE</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="py-10 text-center text-gray-600 text-[10px] uppercase tracking-[0.2em]">
-        Bluemind.ai Forge • Version 1.0 • Fichiers .txt modulaires
-    </footer>
-
-    <script>
-        const editor = document.getElementById('promptEditor');
-        const selector = document.getElementById('vAdmin');
-        const fileLabel = document.getElementById('currentFile');
-
-        // CHARGEMENT : Récupère le contenu du fichier .txt via l'API
-        async function loadPrompt() {
-            const vertical = selector.value;
-            fileLabel.innerText = `file: app/verticals/${vertical}.txt`;
-            try {
-                const res = await fetch(`/v1/admin/prompts/${vertical}`);
-                const data = await res.json();
-                editor.value = data.content;
-            } catch (e) {
-                editor.value = "Erreur lors du chargement du fichier.";
-            }
-        }
-
-        selector.addEventListener('change', loadPrompt);
-        window.onload = loadPrompt;
-
-        // SAUVEGARDE : Envoie le texte au backend pour écraser le .txt
-        async function saveAllConfigs() {
-            const vertical = selector.value;
-            const content = editor.value;
-
-            try {
-                const res = await fetch('/v1/admin/prompts/update', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ vertical: vertical, content: content })
-                });
+<div class="admin-card p-6 border-l-4 border-blue-500">
+    <h3 class="text-xs font-bold text-gray-500 uppercase mb-4 tracking-tighter">Configuration de l'Intelligence</h3>
+    
+    <div class="space-y-4">
+        <div>
+            <label class="text-[10px] text-blue-300 uppercase font-bold mb-2 block">Agents Métiers</label>
+            <select id="vAdmin" class="input-dark w-full p-3 rounded-lg text-xs outline-none cursor-pointer">
+                <option value="telco">📡 Agent Telco (telco.txt)</option>
+                <option value="finance">💰 Agent Finance (finance.txt)</option>
+                <option value="africa">🌍 Agent Afrique (africa.txt)</option>
                 
-                if (res.ok) {
-                    alert(`Succès : Le fichier app/verticals/${vertical}.txt a été mis à jour.`);
-                } else {
-                    alert("Erreur lors de la sauvegarde sur le serveur.");
-                }
-            } catch (e) {
-                alert("Impossible de joindre le serveur.");
-            }
-        }
-
-        async function runDiagnostic() {
-            const prompt = editor.value;
-            const status = document.getElementById('diagStatus');
-            status.innerText = "Analyse en cours...";
-            
-            try {
-                const res = await fetch('/v1/admin/diagnostic', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ system_prompt: prompt })
-                });
-                const data = await res.json();
+                <option disabled>──────────</option>
                 
-                if (data.status === "passed") {
-                    status.innerHTML = `<span class="text-green-400 font-bold">CONFORME (Score ${data.score}%)</span> - Prêt pour déploiement.`;
-                } else {
-                    status.innerHTML = `<span class="text-red-400 font-bold">NON-CONFORME :</span> ${data.issues[0]}`;
-                }
-            } catch (e) {
-                status.innerText = "Erreur de connexion au backend.";
-            }
-        }
+                <option value="world_search" class="bg-blue-900 font-bold text-blue-200">
+                    🔍 WORLD SEARCH (Global Protocol)
+                </option>
+            </select>
+        </div>
+    </div>
 
-        async function ingestData() {
-            const file = document.getElementById('fileInp').files[0];
-            const vert = selector.value;
-            if(!file) return alert("Veuillez choisir un fichier.");
-
-            const fd = new FormData();
-            fd.append('file', file);
-            fd.append('vertical', vert);
-
-            const btn = document.querySelector('.btn-primary');
-            btn.innerText = 'Ingestion...';
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/v1/enterprise/ingest', { method: 'POST', body: fd });
-                const data = await res.json();
-                alert(`Ingestion terminée pour ${vert}.`);
-            } catch(e) { 
-                alert("Erreur d'ingestion."); 
-            } finally {
-                btn.innerText = 'Injecter Connaissances';
-                btn.disabled = false;
-            }
-        }
-    </script>
-</body>
-</html>
+    <div class="mt-4 p-3 bg-blue-500/5 rounded-lg border border-blue-500/10">
+        <p class="text-[10px] text-gray-400 leading-relaxed italic">
+            <i class="fa-solid fa-info-circle mr-1"></i> 
+            <strong>Note :</strong> Le fichier "World Search" définit les règles de citation web appliquées à TOUS les agents.
+        </p>
+    </div>
+</div>

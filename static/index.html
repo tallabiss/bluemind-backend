@@ -13,6 +13,8 @@
         .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
         .mode-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
         .mode-btn.active { border-color: var(--sf-blue); color: var(--sf-blue); font-weight: bold; }
+        .citation { color: var(--sf-blue); font-weight: bold; font-size: 0.8em; vertical-align: super; cursor: pointer; }
+        .source-card:hover { border-color: var(--sf-blue); transform: translateY(-2px); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -27,6 +29,7 @@
                 <button onclick="setMode('search')" id="m-search" class="mode-btn active pb-1">World Search</button>
                 <button onclick="setMode('decision')" id="m-decision" class="mode-btn pb-1">Decision AI</button>
                 <button onclick="setMode('agent')" id="m-agent" class="mode-btn pb-1">Agents Verticaux</button>
+                <a href="/admin" class="text-gray-400 hover:text-blue-500 transition"><i class="fa-solid fa-gear"></i></a>
             </nav>
         </div>
     </header>
@@ -34,71 +37,9 @@
     <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-12">
         <div class="text-center mb-8">
             <h1 id="title" class="text-4xl font-extrabold text-gray-900 mb-2">World Search Engine</h1>
-            <p class="text-gray-500">Intelligence latente pour simulations stratégiques.</p>
+            <p class="text-gray-500">Intelligence hybride : Faits vérifiés et Liens pertinents.</p>
         </div>
 
         <div class="bg-white rounded-2xl sf-shadow border border-gray-200 p-2">
             <div id="verticalBox" class="hidden px-4 pt-2">
                 <select id="vSelect" class="text-xs font-bold text-[#009EDB] bg-blue-50 p-1 rounded border-none">
-                    <option value="telco">TELCO SPECIALIST</option>
-                    <option value="finance">FINANCE ANALYST</option>
-                    <option value="africa">REGION AFRIQUE</option>
-                    <option value="legal">IA JURIDIQUE</option>
-                </select>
-            </div>
-            <textarea id="userInput" class="w-full p-4 text-lg bg-transparent border-none focus:ring-0 resize-none h-32" placeholder="Décrivez votre scénario..."></textarea>
-            <div class="flex justify-between items-center p-2 border-t border-gray-100">
-                <span class="text-xs text-gray-400 ml-2" id="statusLabel">Mode: World Search</span>
-                <button onclick="runSimulation()" class="bg-[#009EDB] hover:bg-[#0070d2] text-white px-8 py-2 rounded-full font-bold transition">Simuler</button>
-            </div>
-        </div>
-
-        <div id="resultSection" class="mt-8 space-y-6 hidden">
-            <div class="bg-blue-50 border-l-4 border-[#009EDB] p-6 rounded-r-xl">
-                <div id="outputContent" class="text-gray-700 leading-relaxed"></div>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-xl sf-shadow border border-gray-100 text-center">
-                    <span class="text-xs text-gray-400 uppercase font-bold">Incertitude</span>
-                    <div id="uncertaintyVal" class="text-2xl font-mono text-[#009EDB]">0.00%</div>
-                </div>
-                <div class="bg-white p-4 rounded-xl sf-shadow border border-gray-100 text-center">
-                    <span class="text-xs text-gray-400 uppercase font-bold">Fiabilité</span>
-                    <div class="text-2xl font-mono text-green-500 italic">Optimale</div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        let mode = 'search';
-        function setMode(m) {
-            mode = m;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('m-'+m).classList.add('active');
-            document.getElementById('verticalBox').classList.toggle('hidden', m !== 'agent');
-            document.getElementById('title').innerText = m === 'search' ? 'World Search Engine' : (m === 'decision' ? 'Decision AI' : 'Agents Verticaux');
-            document.getElementById('statusLabel').innerText = 'Mode: ' + m;
-        }
-
-        async function runSimulation() {
-            const input = document.getElementById('userInput').value;
-            if(!input) return;
-            const resSection = document.getElementById('resultSection');
-            resSection.classList.remove('hidden');
-            document.getElementById('outputContent').innerHTML = "<div class='animate-pulse'>Calcul des trajectoires latentes...</div>";
-
-            try {
-                const response = await fetch('/v1/enterprise/simulate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ input: input, context: mode })
-                });
-                const data = await response.json();
-                document.getElementById('outputContent').innerHTML = `<p>Analyse complétée : <strong>${data.recommendation}</strong></p>`;
-                document.getElementById('uncertaintyVal').innerText = (data.uncertainty * 100).toFixed(2) + "%";
-            } catch (e) { alert("Erreur backend"); }
-        }
-    </script>
-</body>
-</html>

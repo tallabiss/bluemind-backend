@@ -5,8 +5,6 @@ import os
 import zhipuai
 from app.prompts import PromptManager
 
-# Note: Assurez-vous que ComplianceEngine est bien défini dans app/core/compliance.py
-# Si vous ne l'avez pas encore, une version simplifiée est intégrée dans la route diagnostic ci-dessous.
 try:
     from app.core.compliance import ComplianceEngine
     compliance = ComplianceEngine()
@@ -19,72 +17,65 @@ app = FastAPI(title="Bluemind.ai Forge")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
-# Montage des fichiers statiques (JS, CSS, Images)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Initialisation des gestionnaires
-# Note : Récupère la clé API depuis les variables d'environnement de Render
+# Initialisation
 client = zhipuai.ZhipuAI(api_key=os.getenv("ZHIPU_API_KEY"))
 prompt_manager = PromptManager()
 
-# --- ROUTES DE NAVIGATION ---
-
 @app.get("/")
 async def read_index():
-    """Sert la page d'accueil (Cockpit)."""
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 @app.get("/admin")
 async def read_admin():
-    """Sert l'interface d'administration (Forge)."""
     return FileResponse(os.path.join(STATIC_DIR, "admin.html"))
 
-# --- API DE GESTION DES PROMPTS (VERTICALES) ---
+# --- API DE GESTION DES PROMPTS ---
 
 @app.get("/v1/admin/prompts/{vertical}")
 async def get_prompt(vertical: str):
-    """Récupère le contenu d'un fichier .txt spécifique dans app/verticals/."""
     content = prompt_manager.get_prompt(vertical)
     return {"vertical": vertical, "content": content}
 
 @app.post("/v1/admin/prompts/update")
 async def update_prompt(payload: dict = Body(...)):
-    """Écrase le contenu d'un fichier .txt avec les nouvelles directives."""
     vertical = payload.get("vertical")
     content = payload.get("content")
-    
     if not vertical or content is None:
-        raise HTTPException(status_code=400, detail="Données manquantes (vertical ou content)")
+        raise HTTPException(status_code=400, detail="Données manquantes")
     
-    success = prompt_manager.update_prompt(vertical, content)
-    return {"status": "success" if success else "error"}
+    prompt_manager.update_prompt(vertical, content)
+    return {"status": "success"}
 
-# --- API DE DIAGNOSTIC ET CONFORMITÉ ---
+# --- LOGIQUE DE CHAT (EXEMPLE DE FUSION) ---
+
+@app.post("/v1/chat/ask")
+async def ask_ai(vertical: str = Body(...), query: str = Body(...)):
+    # Récupération du prompt métier (ex: telco)
+    agent_prompt = prompt_manager.get_prompt(vertical)
+    # Récupération du protocole global de recherche
+    search_protocol = prompt_manager.get_prompt("world_search")
+    
+    # Fusion des deux couches pour un verrouillage sémantique total
+    full_system_prompt = f"{agent_prompt}\n\n{search_protocol}"
+    
+    # Appel à l'IA (ZhipuAI)
+    # response = client.chat.completions.create(...)
+    return {"status": "ready", "system_prompt_used": full_system_prompt}
 
 @app.post("/v1/admin/diagnostic")
 async def diagnostic(payload: dict = Body(...)):
-    """
-    Analyse le prompt pour vérifier s'il respecte les règles de citation Bluemind.
-    """
     prompt_content = payload.get("system_prompt", "")
-    
-    # Logique de diagnostic
     issues = []
     score = 100
     
     if "<antml:cite" not in prompt_content:
         score -= 60
-        issues.append("Absence de balises <antml:cite>. Le système de citation est obligatoire.")
-    
+        issues.append("Absence de balises <antml:cite>.")
     if "<behavior_guidelines>" not in prompt_content:
         score -= 20
-        issues.append("Structure XML manquante : <behavior_guidelines> non détecté.")
-
-    # Si le moteur de compliance externe existe, on l'utilise pour affiner
-    if compliance:
-        # Simulation d'un test sur une réponse type
-        report = compliance.verify_response("Test de citation <antml:cite index='1'>Source</antml:cite>")
-        # On peut mixer les scores ici
+        issues.append("Structure <behavior_guidelines> manquante.")
     
     return {
         "status": "passed" if score > 70 else "failed",
@@ -92,17 +83,6 @@ async def diagnostic(payload: dict = Body(...)):
         "issues": issues
     }
 
-# --- API D'INGESTION DE DONNÉES ---
-
 @app.post("/v1/enterprise/ingest")
 async def ingest_data(file: UploadFile = File(...), vertical: str = Form(...)):
-    """
-    Simule l'ingestion d'un document dans la base vectorielle d'une verticale.
-    """
-    # Ici, vous ajouteriez la logique de lecture PDF/Text et l'envoi vers un Vector Store
-    return {
-        "status": "success", 
-        "filename": file.filename,
-        "memory_size": "1,240 v-points", 
-        "vertical": vertical
-    }
+    return {"status": "success", "filename": file.filename, "vertical": vertical}

@@ -11,31 +11,21 @@
         body { background-color: #F3F5F9; font-family: 'Segoe UI', system-ui, sans-serif; }
         .sf-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
-        .mode-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
+        .mode-btn { transition: all 0.2s; border-bottom: 2px solid transparent; cursor: pointer; }
         .mode-btn.active { border-color: var(--sf-blue); color: var(--sf-blue); font-weight: bold; }
         
         /* Style des Citations */
         .antml-cite { 
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--sf-blue);
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            margin-left: 2px;
-            vertical-align: super;
-            cursor: help;
-            transition: transform 0.2s;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--sf-blue); color: white; font-size: 10px;
+            font-weight: bold; width: 18px; height: 18px; border-radius: 4px;
+            margin-left: 4px; vertical-align: super; cursor: help;
         }
-        .antml-cite:hover { transform: scale(1.2); background: var(--sf-blue-dark); }
         
-        .chat-bubble { max-width: 85%; border-radius: 1.5rem; padding: 1rem 1.5rem; margin-bottom: 1rem; }
-        .bot-bubble { background: white; border: 1px solid #e5e7eb; color: #1f2937; }
-        .user-bubble { background: var(--sf-blue); color: white; margin-left: auto; }
+        .chat-bubble { max-width: 85%; border-radius: 1.2rem; padding: 0.8rem 1.2rem; margin-bottom: 1rem; line-height: 1.5; }
+        .bot-bubble { background: white; border: 1px solid #e5e7eb; color: #1f2937; align-self: flex-start; }
+        .user-bubble { background: var(--sf-blue); color: white; align-self: flex-end; margin-left: auto; }
+        #chatWindow { display: flex; flex-direction: column; height: 60vh; overflow-y: auto; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -43,33 +33,28 @@
     <header class="glass-header sticky top-0 z-50 border-b border-gray-200 px-6 py-4">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-2">
-                <div class="bg-[#009EDB] p-2 rounded-lg"><i class="fa-solid fa-brain text-white text-xl"></i></div>
+                <div class="bg-[#009EDB] p-2 rounded-lg shadow-md"><i class="fa-solid fa-brain text-white text-xl"></i></div>
                 <span class="text-2xl font-bold tracking-tight text-gray-800">Bluemind<span class="text-[#009EDB]">.ai</span></span>
             </div>
             <nav class="flex space-x-6 text-sm font-medium text-gray-600">
                 <button onclick="setMode('search')" id="m-search" class="mode-btn active pb-1">World Search</button>
                 <button onclick="setMode('agent')" id="m-agent" class="mode-btn pb-1">Agents Verticaux</button>
-                <a href="/admin" class="text-gray-400 hover:text-blue-500 transition" title="Forge Admin"><i class="fa-solid fa-gear"></i></a>
+                <a href="/admin" class="text-gray-400 hover:text-blue-500 transition ml-4"><i class="fa-solid fa-gear"></i></a>
             </nav>
         </div>
     </header>
 
-    <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-12 flex flex-col">
-        <div class="text-center mb-8">
-            <h1 id="title" class="text-4xl font-extrabold text-gray-900 mb-2">Cockpit IA</h1>
-            <p id="subtitle" class="text-gray-500">Sélectionnez une verticale pour commencer l'analyse.</p>
-        </div>
-
-        <div id="chatWindow" class="flex-grow space-y-4 mb-8 overflow-y-auto min-h-[400px]">
+    <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-12">
+        <div id="chatWindow" class="mb-8 p-4 scroll-smooth">
             <div class="bot-bubble chat-bubble shadow-sm">
-                Bonjour ! Je suis prêt à vous assister. Sélectionnez un expert ou utilisez la recherche globale.
+                Bonjour ! Je suis le Cockpit Bluemind. Posez-moi une question ou choisissez un expert.
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl sf-shadow border border-gray-200 p-2 relative">
-            <div id="verticalBox" class="px-4 pt-2 flex items-center space-x-2">
-                <span class="text-[10px] font-bold text-gray-400 uppercase">Expert :</span>
-                <select id="vSelect" class="text-xs font-bold text-[#009EDB] bg-blue-50 p-1 rounded border-none outline-none">
+        <div class="bg-white rounded-2xl sf-shadow border border-gray-200 p-2">
+            <div id="verticalBox" class="hidden px-4 pt-2 flex items-center space-x-2">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Expert Actif :</span>
+                <select id="vSelect" class="text-xs font-bold text-[#009EDB] bg-blue-50 p-1 rounded outline-none border-none">
                     <option value="telco">📡 Telecom Expert</option>
                     <option value="finance">💰 Finance Analyst</option>
                     <option value="africa">🌍 Africa Strategic</option>
@@ -77,9 +62,10 @@
             </div>
 
             <div class="flex items-center p-2">
-                <input type="text" id="userInput" placeholder="Posez votre question ici..." 
-                       class="flex-grow p-3 outline-none text-gray-700 bg-transparent">
-                <button onclick="askQuestion()" class="bg-[#009EDB] text-white h-12 w-12 rounded-xl flex items-center justify-center hover:bg-blue-600 transition shadow-lg">
+                <input type="text" id="userInput" placeholder="Écrivez votre message..." 
+                       class="flex-grow p-3 outline-none text-gray-700 bg-transparent"
+                       onkeypress="if(event.key === 'Enter') askQuestion()">
+                <button onclick="askQuestion()" id="sendBtn" class="bg-[#009EDB] text-white h-12 w-12 rounded-xl flex items-center justify-center hover:bg-blue-600 transition shadow-lg">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
             </div>
@@ -93,64 +79,55 @@
             currentMode = mode;
             document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`m-${mode}`).classList.add('active');
-            
-            const vBox = document.getElementById('verticalBox');
-            if(mode === 'agent') {
-                vBox.classList.remove('hidden');
-                document.getElementById('title').innerText = "Agents Verticaux";
-            } else {
-                vBox.classList.add('hidden');
-                document.getElementById('title').innerText = "World Search Engine";
-            }
+            document.getElementById('verticalBox').classList.toggle('hidden', mode !== 'agent');
         }
 
-        // Transforme le texte de l'IA pour rendre les balises <antml:cite> jolies
+        // Rendu visuel des balises de citation
         function formatAIResponse(text) {
-            // Remplace <antml:cite index="XYZ"> par un span stylisé
+            if (!text) return "";
             return text.replace(/<antml:cite index="(.*?)">(.*?)<\/antml:cite>/g, (match, index, content) => {
-                return `${content}<span class="antml-cite" title="Source: ${index}">${index.split(',')[0]}</span>`;
+                const displayIndex = index.length > 8 ? '🔗' : index;
+                return `${content}<span class="antml-cite" title="Source: ${index}">${displayIndex}</span>`;
             });
         }
 
         async function askQuestion() {
             const input = document.getElementById('userInput');
             const chatWindow = document.getElementById('chatWindow');
-            const vertical = document.getElementById('vSelect').value;
-            const query = input.value;
-
+            const query = input.value.trim();
             if(!query) return;
 
-            // 1. Afficher bulle utilisateur
-            chatWindow.innerHTML += `<div class="user-bubble chat-bubble">${query}</div>`;
+            // 1. Affichage utilisateur
+            chatWindow.innerHTML += `<div class="user-bubble chat-bubble shadow-sm">${query}</div>`;
             input.value = '';
+            
+            // 2. Affichage Loader
+            const loaderId = "loader-" + Date.now();
+            chatWindow.innerHTML += `<div id="${loaderId}" class="bot-bubble chat-bubble italic text-gray-400">Analyse en cours...</div>`;
+            chatWindow.scrollTop = chatWindow.scrollHeight;
 
             try {
-                // 2. Appel au backend fusionné
+                // 3. Appel backend réel
                 const response = await fetch('/v1/chat/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        vertical: (currentMode === 'agent' ? vertical : 'world_search'), 
+                        vertical: (currentMode === 'agent' ? document.getElementById('vSelect').value : 'world_search'), 
                         query: query 
                     })
                 });
 
                 const data = await response.json();
-                
-                // Simulation de réponse avec balises pour tester le rendu
-                // (En production, data.answer viendra de votre IA)
-                const mockAnswer = `Selon nos données internes <antml:cite index="1">sur la 5G</antml:cite>, le déploiement progresse de 15% par an en zone urbaine <antml:cite index="ARCEP-2024">Source Web</antml:cite>.`;
-                
-                const formattedResponse = formatAIResponse(mockAnswer);
+                document.getElementById(loaderId).remove();
 
-                // 3. Afficher bulle IA
-                chatWindow.innerHTML += `<div class="bot-bubble chat-bubble shadow-sm">${formattedResponse}</div>`;
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-
+                if (data.status === "ready") {
+                    const formatted = formatAIResponse(data.answer);
+                    chatWindow.innerHTML += `<div class="bot-bubble chat-bubble shadow-sm animate-fade-in">${formatted}</div>`;
+                }
             } catch (e) {
-                console.error(e);
-                chatWindow.innerHTML += `<div class="bot-bubble chat-bubble text-red-500">Erreur de connexion au serveur.</div>`;
+                document.getElementById(loaderId).innerHTML = "Erreur de communication avec l'IA.";
             }
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
     </script>
 </body>

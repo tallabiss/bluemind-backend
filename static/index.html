@@ -9,11 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --p-blue: #009EDB; 
-            --p-blue-dark: #004A7C; /* Bleu foncé pour vos questions */
-            --p-bg: #F8FAFC; 
+            --p-blue-brand: #009EDB; /* Votre bleu officiel */
+            --p-bg: #F0F2F5; 
         }
-        body { background-color: var(--p-bg); font-family: 'Inter', sans-serif; overflow: hidden; }
+        body { background-color: var(--p-bg); color: #1A1D21; font-family: 'Inter', sans-serif; overflow: hidden; }
         
         /* Layout */
         .sidebar { width: 240px; border-right: 1px solid #E2E8F0; height: 100vh; position: fixed; left: 0; top: 0; padding: 1.5rem; background: white; z-index: 100; }
@@ -22,69 +21,67 @@
         /* Onglets Fixes en Haut */
         .global-tabs { 
             background: white; border-bottom: 1px solid #E2E8F0; 
-            padding: 0.75rem 2rem; display: flex; gap: 2rem; 
+            padding: 0.6rem 2rem; display: flex; gap: 2rem; 
             justify-content: center; z-index: 50; position: sticky; top: 0;
         }
         .tab-btn { 
             padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 600; 
             color: #64748B; cursor: pointer; transition: all 0.2s; border-radius: 8px; 
-            display: flex; align-items: center;
         }
-        .tab-btn.active { color: var(--p-blue); background: #F0F9FF; }
+        .tab-btn.active { color: var(--p-blue-brand); background: #F0F9FF; }
 
-        /* Fil de discussion (Chat Area) */
+        /* Fil de discussion */
         #chatThread { 
             flex-grow: 1; overflow-y: auto; 
-            padding: 2rem 10% 12rem 10%; 
-            display: flex; flex-direction: column; gap: 1.5rem; 
+            padding: 2rem 8% 12rem 8%; 
+            display: flex; flex-direction: column; gap: 1rem; 
             scroll-behavior: smooth; 
         }
         
-        /* Bulles Style WhatsApp */
+        /* Bulles Style Discussion */
         .bubble { 
-            max-width: 85%; padding: 0.85rem 1.1rem; border-radius: 18px; 
-            font-size: 0.95rem; /* Police réduite */
-            line-height: 1.6; position: relative; animation: slideUp 0.3s ease-out; 
+            max-width: 80%; padding: 0.9rem 1.2rem; border-radius: 20px; 
+            font-size: 0.95rem; line-height: 1.5; position: relative; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            animation: slideUp 0.3s ease-out; 
         }
         
-        /* Question Utilisateur : Droite & Bleu Foncé */
+        /* Question : Bleu Bluemind à Droite */
         .user-q { 
-            align-self: flex-end; background: var(--p-blue-dark); color: white; 
-            border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(0,74,124,0.1); 
+            align-self: flex-end; background: var(--p-blue-brand); color: white; 
+            border-bottom-right-radius: 4px; 
         }
         
-        /* Réponse Bluemind : Gauche & Blanc */
+        /* Réponse : Blanc à Gauche */
         .bot-r { 
             align-self: flex-start; background: white; color: #334155; 
             border-bottom-left-radius: 4px; border: 1px solid #E2E8F0; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
         }
 
-        /* Citations Bluemind.ai style */
+        /* Citations AntML */
         .source-tag { 
-            background: #E0F2FE; color: var(--p-blue); padding: 1px 5px; 
-            border-radius: 4px; font-size: 9px; font-weight: 800; 
-            margin-left: 4px; vertical-align: super; cursor: help;
+            background: #E0F2FE; color: var(--p-blue-brand); padding: 1px 5px; 
+            border-radius: 4px; font-size: 10px; font-weight: 800; 
+            margin-left: 4px; vertical-align: super;
         }
 
-        /* Barre de recherche (Dock) */
+        /* Zone de saisie (Dock) */
         .search-container { 
             position: absolute; bottom: 2rem; width: 100%; left: 0; 
             display: flex; justify-content: center; padding: 0 2rem; pointer-events: none; 
         }
         .search-bar { 
-            pointer-events: auto; width: 100%; max-width: 680px; 
-            background: white; border-radius: 20px; padding: 0.5rem 1rem; 
-            display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            pointer-events: auto; width: 100%; max-width: 700px; 
+            background: white; border-radius: 25px; padding: 0.6rem 1.2rem; 
+            display: flex; align-items: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
             border: 1px solid #E2E8F0; 
         }
-        #userInput { flex-grow: 1; border: none; padding: 0.6rem; outline: none; font-size: 0.95rem; background: transparent; }
+        #userInput { flex-grow: 1; border: none; padding: 0.5rem; outline: none; font-size: 0.95rem; background: transparent; }
         .btn-send { 
-            background: var(--p-blue); color: white; width: 38px; height: 38px; 
+            background: var(--p-blue-brand); color: white; width: 40px; height: 40px; 
             border-radius: 50%; display: flex; align-items: center; justify-content: center; 
             transition: transform 0.2s;
         }
-        .btn-send:hover { transform: scale(1.1); }
 
         .hidden { display: none; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -93,69 +90,59 @@
 <body>
 
     <aside class="sidebar flex flex-col justify-between">
-        <div>
-            <div class="flex items-center space-x-2 mb-10">
+        <div class="flex flex-col items-center">
+            <div class="flex items-center space-x-2 mb-10 w-full">
                 <div class="bg-[#009EDB] p-1.5 rounded-lg shadow-sm"><i class="fa-solid fa-brain text-white text-sm"></i></div>
-                <span class="text-xl font-bold tracking-tight text-gray-800 italic">Bluemind<span class="text-[#009EDB]">.ai</span></span>
+                <span class="text-xl font-bold tracking-tight text-gray-800">Bluemind<span class="text-[#009EDB]">.ai</span></span>
             </div>
-            <nav class="space-y-4">
-                <button onclick="location.reload()" class="w-full text-left px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
-                    <i class="fa-solid fa-plus mr-2"></i> Nouvelle Analyse
-                </button>
-            </nav>
+            <button onclick="location.reload()" class="w-full py-3 px-4 bg-blue-50 text-[#009EDB] font-bold rounded-2xl text-sm transition hover:bg-blue-100">
+                + Nouveau Thread
+            </button>
         </div>
-        <div class="space-y-4">
-            <a href="/admin" class="flex items-center justify-between p-3 border rounded-xl hover:bg-gray-50 transition">
-                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">La Forge</span>
-                <i class="fa-solid fa-gear text-gray-300"></i>
-            </a>
+        <div class="text-center pb-4 text-gray-300 text-[10px] font-bold tracking-widest uppercase">
+            Engine v2.0
         </div>
     </aside>
 
     <main class="main-content">
         <div class="global-tabs">
-            <div onclick="switchGlobalTab('chat')" id="gt-chat" class="tab-btn active"><i class="fa-solid fa-message mr-2 text-xs"></i>Discussion</div>
-            <div onclick="switchGlobalTab('src')" id="gt-src" class="tab-btn"><i class="fa-solid fa-link mr-2 text-xs"></i>Sources</div>
-            <div onclick="switchGlobalTab('img')" id="gt-img" class="tab-btn"><i class="fa-solid fa-images mr-2 text-xs"></i>Images</div>
+            <div onclick="switchTab('chat')" id="t-chat" class="tab-btn active">Réponse</div>
+            <div onclick="switchTab('src')" id="t-src" class="tab-btn">Liens</div>
+            <div onclick="switchTab('img')" id="t-img" class="tab-btn">Images</div>
         </div>
 
         <div id="chatThread">
-            <div class="bot-r bubble">
-                Bonjour, Ingénieur. Quel sujet technique souhaitez-vous explorer aujourd'hui ?
+            <div class="bot-r bubble shadow-sm">
+                Session initialisée. Je suis l'Ingénieur en Chef. Prêt pour l'analyse.
             </div>
         </div>
 
-        <div id="sourcePanel" class="hidden p-10 overflow-y-auto bg-white h-full">
-            <h3 class="text-xl font-bold mb-6 text-gray-800 border-b pb-4">Bibliothèque des Sources</h3>
-            <div id="globalSourceList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <div id="sourcePanel" class="hidden p-12 overflow-y-auto bg-white h-full">
+            <h2 class="text-2xl font-bold mb-8">Sources de la session</h2>
+            <div id="sourceList" class="grid gap-4"></div>
         </div>
         
-        <div id="imagePanel" class="hidden p-10 overflow-y-auto bg-white h-full">
-            <h3 class="text-xl font-bold mb-6 text-gray-800 border-b pb-4">Galerie de Médias</h3>
-            <div id="globalImageGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+        <div id="imagePanel" class="hidden p-12 overflow-y-auto bg-white h-full">
+            <h2 class="text-2xl font-bold mb-8">Médias générés</h2>
+            <div id="imageGrid" class="grid grid-cols-3 gap-6"></div>
         </div>
 
         <div class="search-container">
             <div class="search-bar">
-                <i class="fa-solid fa-paperclip text-gray-300 ml-2"></i>
-                <input type="text" id="userInput" placeholder="Poser une question de suivi..." onkeypress="if(event.key === 'Enter') askQuestion()">
-                <button onclick="askQuestion()" class="btn-send"><i class="fa-solid fa-arrow-up"></i></button>
+                <input type="text" id="userInput" placeholder="Posez votre question technique..." onkeypress="if(event.key === 'Enter') askQuestion()">
+                <button onclick="askQuestion()" class="btn-send shadow-md hover:scale-105 transition"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
     <script>
-        function switchGlobalTab(mode) {
+        function switchTab(mode) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`gt-${mode}`).classList.add('active');
+            document.getElementById(`t-${mode}`).classList.add('active');
             
-            document.getElementById('chatThread').classList.add('hidden');
-            document.getElementById('sourcePanel').classList.add('hidden');
-            document.getElementById('imagePanel').classList.add('hidden');
-
-            if(mode === 'chat') document.getElementById('chatThread').classList.remove('hidden');
-            if(mode === 'src') document.getElementById('sourcePanel').classList.remove('hidden');
-            if(mode === 'img') document.getElementById('imagePanel').classList.remove('hidden');
+            document.getElementById('chatThread').classList.toggle('hidden', mode !== 'chat');
+            document.getElementById('sourcePanel').classList.toggle('hidden', mode !== 'src');
+            document.getElementById('imagePanel').classList.toggle('hidden', mode !== 'img');
         }
 
         async function askQuestion() {
@@ -164,13 +151,13 @@
             const query = input.value.trim();
             if (!query) return;
 
-            // 1. Question (Alignée à droite, Bleu Foncé)
-            thread.innerHTML += `<div class="user-q bubble">${query}</div>`;
+            // Ajout Question (Bleu Bluemind)
+            thread.innerHTML += `<div class="user-q bubble shadow-md">${query}</div>`;
             input.value = '';
             
-            // 2. Animation de chargement
-            const loaderId = "loader-" + Date.now();
-            thread.innerHTML += `<div id="${loaderId}" class="bot-r bubble flex space-x-1"><div class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></div><div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.1s"></div><div class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div></div>`;
+            // Loader
+            const loaderId = "l-" + Date.now();
+            thread.innerHTML += `<div id="${loaderId}" class="bot-r bubble italic text-gray-400">Analyse en cours...</div>`;
             thread.scrollTop = thread.scrollHeight;
 
             try {
@@ -182,33 +169,21 @@
                 const data = await response.json();
                 document.getElementById(loaderId).remove();
 
-                // 3. Rendu Réponse (Alignée à gauche, Blanc)
-                let formatted = data.answer.replace(/<antml:cite index="(.*?)">(.*?)<\/antml:cite>/g, 
-                    `<span class="border-b border-blue-50 hover:bg-blue-50 transition">$2</span><span class="source-tag" title="Source : $1">$1</span>`);
+                // Formatage AntML
+                let html = data.answer.replace(/<antml:cite index="(.*?)">(.*?)<\/antml:cite>/g, 
+                    `<span class="border-b border-blue-100">$2</span><span class="source-tag">$1</span>`);
                 
-                thread.innerHTML += `<div class="bot-r bubble">${formatted.replace(/\n/g, '<br>')}</div>`;
-                
-                // Mise à jour de la bibliothèque de sources globale
+                thread.innerHTML += `<div class="bot-r bubble shadow-sm">${html.replace(/\n/g, '<br>')}</div>`;
+
+                // Update Sources & Images
                 const sources = [...data.answer.matchAll(/index="(.*?)"/g)].map(m => m[1]);
                 sources.forEach(s => {
-                    const exists = document.querySelector(`[data-source="${s}"]`);
-                    if(!exists) {
-                        document.getElementById('globalSourceList').innerHTML += `
-                        <div class="p-4 bg-white border border-gray-100 rounded-2xl flex items-center space-x-4 shadow-sm" data-source="${s}">
-                            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center font-bold text-xs">${s.substring(0,3)}</div>
-                            <div class="flex-1 truncate"><p class="text-sm font-semibold text-gray-700">${s}</p><p class="text-[10px] text-gray-400">Référence validée par Bluemind.ai</p></div>
-                        </div>`;
-                    }
+                    document.getElementById('sourceList').innerHTML += `<div class="p-4 border rounded-xl flex items-center justify-between font-medium text-gray-700 shadow-sm">${s} <i class="fa-solid fa-external-link text-blue-300"></i></div>`;
                 });
-
-                // Mise à jour de la galerie d'images
-                document.getElementById('globalImageGrid').innerHTML += `
-                    <div class="rounded-2xl overflow-hidden border shadow-sm aspect-video">
-                        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=60&w=400&sig=${Math.random()}" class="w-full h-full object-cover">
-                    </div>`;
+                document.getElementById('imageGrid').innerHTML += `<div class="rounded-2xl overflow-hidden border aspect-video"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=60&w=400&sig=${Math.random()}" class="w-full h-full object-cover"></div>`;
 
             } catch (e) {
-                document.getElementById(loaderId).innerHTML = "Erreur réseau. Veuillez vérifier la connexion au serveur.";
+                document.getElementById(loaderId).innerText = "Erreur de connexion.";
             }
             thread.scrollTop = thread.scrollHeight;
         }

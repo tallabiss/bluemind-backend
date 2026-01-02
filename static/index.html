@@ -8,37 +8,83 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --p-blue: #009EDB; --p-blue-dark: #004A7C; --p-bg: #F8FAFC; }
+        :root { 
+            --p-blue: #009EDB; 
+            --p-blue-dark: #004A7C; /* Bleu foncé pour vos questions */
+            --p-bg: #F8FAFC; 
+        }
         body { background-color: var(--p-bg); font-family: 'Inter', sans-serif; overflow: hidden; }
         
         /* Layout */
         .sidebar { width: 240px; border-right: 1px solid #E2E8F0; height: 100vh; position: fixed; left: 0; top: 0; padding: 1.5rem; background: white; z-index: 100; }
-        .main-content { margin-left: 240px; height: 100vh; display: flex; flex-direction: column; }
+        .main-content { margin-left: 240px; height: 100vh; display: flex; flex-direction: column; position: relative; }
         
-        /* Fixed Header Tabs */
-        .global-tabs { background: white; border-bottom: 1px solid #E2E8F0; padding: 0.5rem 2rem; display: flex; gap: 2rem; justify-content: center; z-index: 50; }
-        .tab-btn { padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600; color: #64748B; cursor: pointer; transition: all 0.2s; border-radius: 8px; }
+        /* Onglets Fixes en Haut */
+        .global-tabs { 
+            background: white; border-bottom: 1px solid #E2E8F0; 
+            padding: 0.75rem 2rem; display: flex; gap: 2rem; 
+            justify-content: center; z-index: 50; position: sticky; top: 0;
+        }
+        .tab-btn { 
+            padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 600; 
+            color: #64748B; cursor: pointer; transition: all 0.2s; border-radius: 8px; 
+            display: flex; align-items: center;
+        }
         .tab-btn.active { color: var(--p-blue); background: #F0F9FF; }
 
-        /* Chat Area */
-        #chatThread { flex-grow: 1; overflow-y: auto; padding: 2rem 15% 10rem 15%; display: flex; flex-direction: column; gap: 1.5rem; scroll-behavior: smooth; }
+        /* Fil de discussion (Chat Area) */
+        #chatThread { 
+            flex-grow: 1; overflow-y: auto; 
+            padding: 2rem 10% 12rem 10%; 
+            display: flex; flex-direction: column; gap: 1.5rem; 
+            scroll-behavior: smooth; 
+        }
         
-        /* WhatsApp Style Bubbles */
-        .bubble { max-width: 80%; padding: 0.8rem 1.2rem; border-radius: 18px; font-size: 0.92rem; line-height: 1.5; position: relative; animation: slideUp 0.3s ease-out; }
+        /* Bulles Style WhatsApp */
+        .bubble { 
+            max-width: 85%; padding: 0.85rem 1.1rem; border-radius: 18px; 
+            font-size: 0.95rem; /* Police réduite */
+            line-height: 1.6; position: relative; animation: slideUp 0.3s ease-out; 
+        }
         
-        /* User Question: Right & Dark Blue */
-        .user-q { align-self: flex-end; background: var(--p-blue-dark); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(0,74,124,0.15); }
+        /* Question Utilisateur : Droite & Bleu Foncé */
+        .user-q { 
+            align-self: flex-end; background: var(--p-blue-dark); color: white; 
+            border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(0,74,124,0.1); 
+        }
         
-        /* Bot Response: Left & White */
-        .bot-r { align-self: flex-start; background: white; color: #334155; border-bottom-left-radius: 4px; border: 1px solid #E2E8F0; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        /* Réponse Bluemind : Gauche & Blanc */
+        .bot-r { 
+            align-self: flex-start; background: white; color: #334155; 
+            border-bottom-left-radius: 4px; border: 1px solid #E2E8F0; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+        }
 
-        .source-tag { background: #E0F2FE; color: var(--p-blue); padding: 1px 5px; border-radius: 4px; font-size: 9px; font-weight: 800; margin-left: 4px; vertical-align: super; }
+        /* Citations Bluemind.ai style */
+        .source-tag { 
+            background: #E0F2FE; color: var(--p-blue); padding: 1px 5px; 
+            border-radius: 4px; font-size: 9px; font-weight: 800; 
+            margin-left: 4px; vertical-align: super; cursor: help;
+        }
 
-        /* Search Dock */
-        .search-container { position: absolute; bottom: 2rem; width: 100%; left: 0; display: flex; justify-content: center; padding: 0 2rem; pointer-events: none; }
-        .search-bar { pointer-events: auto; width: 100%; max-width: 650px; background: white; border-radius: 24px; padding: 0.5rem 1rem; display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.08); border: 1px solid #E2E8F0; }
-        #userInput { flex-grow: 1; border: none; padding: 0.6rem; outline: none; font-size: 0.95rem; }
-        .btn-send { background: var(--p-blue); color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        /* Barre de recherche (Dock) */
+        .search-container { 
+            position: absolute; bottom: 2rem; width: 100%; left: 0; 
+            display: flex; justify-content: center; padding: 0 2rem; pointer-events: none; 
+        }
+        .search-bar { 
+            pointer-events: auto; width: 100%; max-width: 680px; 
+            background: white; border-radius: 20px; padding: 0.5rem 1rem; 
+            display: flex; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            border: 1px solid #E2E8F0; 
+        }
+        #userInput { flex-grow: 1; border: none; padding: 0.6rem; outline: none; font-size: 0.95rem; background: transparent; }
+        .btn-send { 
+            background: var(--p-blue); color: white; width: 38px; height: 38px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            transition: transform 0.2s;
+        }
+        .btn-send:hover { transform: scale(1.1); }
 
         .hidden { display: none; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -50,49 +96,55 @@
         <div>
             <div class="flex items-center space-x-2 mb-10">
                 <div class="bg-[#009EDB] p-1.5 rounded-lg shadow-sm"><i class="fa-solid fa-brain text-white text-sm"></i></div>
-                <span class="text-xl font-bold tracking-tight text-gray-800">Bluemind<span class="text-[#009EDB]">.ai</span></span>
+                <span class="text-xl font-bold tracking-tight text-gray-800 italic">Bluemind<span class="text-[#009EDB]">.ai</span></span>
             </div>
-            <nav class="space-y-2">
-                <button onclick="location.reload()" class="w-full text-left px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-xl"><i class="fa-solid fa-plus mr-2"></i> Nouvelle Session</button>
+            <nav class="space-y-4">
+                <button onclick="location.reload()" class="w-full text-left px-4 py-2 text-sm font-semibold text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100 transition">
+                    <i class="fa-solid fa-plus mr-2"></i> Nouvelle Analyse
+                </button>
             </nav>
         </div>
-        <a href="/admin" class="text-xs text-gray-400 hover:text-blue-500 transition text-center border-t pt-4">Accéder à La Forge <i class="fa-solid fa-gear"></i></a>
+        <div class="space-y-4">
+            <a href="/admin" class="flex items-center justify-between p-3 border rounded-xl hover:bg-gray-50 transition">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">La Forge</span>
+                <i class="fa-solid fa-gear text-gray-300"></i>
+            </a>
+        </div>
     </aside>
 
     <main class="main-content">
         <div class="global-tabs">
-            <div onclick="switchGlobalTab('chat')" id="gt-chat" class="tab-btn active"><i class="fa-solid fa-message mr-2"></i>Discussion</div>
-            <div onclick="switchGlobalTab('src')" id="gt-src" class="tab-btn"><i class="fa-solid fa-link mr-2"></i>Sources</div>
-            <div onclick="switchGlobalTab('img')" id="gt-img" class="tab-btn"><i class="fa-solid fa-images mr-2"></i>Médias</div>
+            <div onclick="switchGlobalTab('chat')" id="gt-chat" class="tab-btn active"><i class="fa-solid fa-message mr-2 text-xs"></i>Discussion</div>
+            <div onclick="switchGlobalTab('src')" id="gt-src" class="tab-btn"><i class="fa-solid fa-link mr-2 text-xs"></i>Sources</div>
+            <div onclick="switchGlobalTab('img')" id="gt-img" class="tab-btn"><i class="fa-solid fa-images mr-2 text-xs"></i>Images</div>
         </div>
 
         <div id="chatThread">
             <div class="bot-r bubble">
-                Bonjour, Ingénieur. Quel protocole technique ou stratégique souhaiteriez-vous analyser aujourd'hui ?
+                Bonjour, Ingénieur. Quel sujet technique souhaitez-vous explorer aujourd'hui ?
             </div>
         </div>
 
         <div id="sourcePanel" class="hidden p-10 overflow-y-auto bg-white h-full">
-            <h3 class="text-lg font-bold mb-6 text-gray-800">Bibliothèque des Sources de la session</h3>
-            <div id="globalSourceList" class="grid gap-4"></div>
+            <h3 class="text-xl font-bold mb-6 text-gray-800 border-b pb-4">Bibliothèque des Sources</h3>
+            <div id="globalSourceList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         </div>
         
         <div id="imagePanel" class="hidden p-10 overflow-y-auto bg-white h-full">
-            <h3 class="text-lg font-bold mb-6 text-gray-800">Galerie Médias générée</h3>
-            <div id="globalImageGrid" class="grid grid-cols-3 gap-4"></div>
+            <h3 class="text-xl font-bold mb-6 text-gray-800 border-b pb-4">Galerie de Médias</h3>
+            <div id="globalImageGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
         </div>
 
         <div class="search-container">
             <div class="search-bar">
-                <input type="text" id="userInput" placeholder="Écrivez votre message..." onkeypress="if(event.key === 'Enter') askQuestion()">
+                <i class="fa-solid fa-paperclip text-gray-300 ml-2"></i>
+                <input type="text" id="userInput" placeholder="Poser une question de suivi..." onkeypress="if(event.key === 'Enter') askQuestion()">
                 <button onclick="askQuestion()" class="btn-send"><i class="fa-solid fa-arrow-up"></i></button>
             </div>
         </div>
     </main>
 
     <script>
-        let currentMode = 'chat';
-
         function switchGlobalTab(mode) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`gt-${mode}`).classList.add('active');
@@ -112,11 +164,11 @@
             const query = input.value.trim();
             if (!query) return;
 
-            // Afficher question (Droite)
+            // 1. Question (Alignée à droite, Bleu Foncé)
             thread.innerHTML += `<div class="user-q bubble">${query}</div>`;
             input.value = '';
             
-            // Loader (Gauche)
+            // 2. Animation de chargement
             const loaderId = "loader-" + Date.now();
             thread.innerHTML += `<div id="${loaderId}" class="bot-r bubble flex space-x-1"><div class="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></div><div class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style="animation-delay:0.1s"></div><div class="w-1.5 h-1.5 bg-gray-500 rounded-full animate-bounce" style="animation-delay:0.2s"></div></div>`;
             thread.scrollTop = thread.scrollHeight;
@@ -130,28 +182,33 @@
                 const data = await response.json();
                 document.getElementById(loaderId).remove();
 
-                // Rendu Réponse (Gauche)
+                // 3. Rendu Réponse (Alignée à gauche, Blanc)
                 let formatted = data.answer.replace(/<antml:cite index="(.*?)">(.*?)<\/antml:cite>/g, 
-                    `<span class="border-b border-blue-100">$2</span><span class="source-tag">${"$1"}</span>`);
+                    `<span class="border-b border-blue-50 hover:bg-blue-50 transition">$2</span><span class="source-tag" title="Source : $1">$1</span>`);
                 
                 thread.innerHTML += `<div class="bot-r bubble">${formatted.replace(/\n/g, '<br>')}</div>`;
                 
-                // Update Global Sources
+                // Mise à jour de la bibliothèque de sources globale
                 const sources = [...data.answer.matchAll(/index="(.*?)"/g)].map(m => m[1]);
                 sources.forEach(s => {
-                    document.getElementById('globalSourceList').innerHTML += `
-                        <div class="p-4 border rounded-xl flex items-center space-x-4 hover:bg-gray-50 transition">
-                            <div class="bg-blue-100 text-blue-600 p-2 rounded-lg font-bold">${s[0]}</div>
-                            <span class="font-medium text-gray-700">Expertise de source : ${s}</span>
+                    const exists = document.querySelector(`[data-source="${s}"]`);
+                    if(!exists) {
+                        document.getElementById('globalSourceList').innerHTML += `
+                        <div class="p-4 bg-white border border-gray-100 rounded-2xl flex items-center space-x-4 shadow-sm" data-source="${s}">
+                            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center font-bold text-xs">${s.substring(0,3)}</div>
+                            <div class="flex-1 truncate"><p class="text-sm font-semibold text-gray-700">${s}</p><p class="text-[10px] text-gray-400">Référence validée par Bluemind.ai</p></div>
                         </div>`;
+                    }
                 });
 
-                // Update Images
+                // Mise à jour de la galerie d'images
                 document.getElementById('globalImageGrid').innerHTML += `
-                    <div class="rounded-xl overflow-hidden aspect-square border"><img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=60&w=300&sig=${Math.random()}" class="w-full h-full object-cover"></div>`;
+                    <div class="rounded-2xl overflow-hidden border shadow-sm aspect-video">
+                        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=60&w=400&sig=${Math.random()}" class="w-full h-full object-cover">
+                    </div>`;
 
             } catch (e) {
-                document.getElementById(loaderId).innerHTML = "Désolé, une erreur technique est survenue.";
+                document.getElementById(loaderId).innerHTML = "Erreur réseau. Veuillez vérifier la connexion au serveur.";
             }
             thread.scrollTop = thread.scrollHeight;
         }

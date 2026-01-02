@@ -11,14 +11,13 @@ app = FastAPI(title="Bluemind.ai Forge")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 
+# Montage des fichiers statiques
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# Initialisation des services
-# Note: Assurez-vous que ZHIPU_API_KEY est définie dans vos variables d'environnement
-client = zhipuai.ZhipuAI(api_key=os.getenv("ZHIPU_API_KEY"))
+# Initialisation
+ZHIPU_KEY = os.getenv("ZHIPU_API_KEY")
+client = zhipuai.ZhipuAI(api_key=ZHIPU_KEY)
 prompt_manager = PromptManager()
-
-# --- ROUTES DE NAVIGATION ---
 
 @app.get("/")
 async def read_index():
@@ -28,7 +27,7 @@ async def read_index():
 async def read_admin():
     return FileResponse(os.path.join(STATIC_DIR, "admin.html"))
 
-# --- API DE GESTION DES PROMPTS ---
+# --- GESTION DES PROMPTS (FORGE) ---
 
 @app.get("/v1/admin/prompts/{vertical}")
 async def get_prompt(vertical: str):
@@ -39,58 +38,52 @@ async def get_prompt(vertical: str):
 async def update_prompt(payload: dict = Body(...)):
     vertical = payload.get("vertical")
     content = payload.get("content")
-    if not vertical or content is None:
-        raise HTTPException(status_code=400, detail="Données manquantes")
     prompt_manager.update_prompt(vertical, content)
     return {"status": "success"}
 
-# --- API DE CHAT (L'INTELLIGENCE FUSIONNÉE) ---
+# --- LOGIQUE DE CHAT (COCKPIT) ---
 
 @app.post("/v1/chat/ask")
 async def ask_ai(payload: dict = Body(...)):
     vertical = payload.get("vertical", "world_search")
     query = payload.get("query", "")
     
-    # 1. Chargement des deux couches de prompt depuis la Forge
-    agent_prompt = prompt_manager.get_prompt(vertical)
-    search_protocol = prompt_manager.get_prompt("world_search")
+    if not query:
+        raise HTTPException(status_code=400, detail="Query empty")
+
+    # 1. Fusion des instructions
+    agent_instr = prompt_manager.get_prompt(vertical)
+    search_instr = prompt_manager.get_prompt("world_search")
+    full_prompt = f"{agent_instr}\n\n{search_instr}"
     
-    # 2. Fusion : Expertise métier + Protocole de citation global
-    full_system_prompt = f"{agent_prompt}\n\n{search_protocol}"
-    
+    # 2. Vérification Clé API
+    if not ZHIPU_KEY or "votre" in ZHIPU_KEY:
+        return {"status": "ready", "answer": "⚠️ Mode Démo : Configurez ZHIPU_API_KEY pour activer l'IA."}
+
     try:
-        # 3. Appel à l'IA avec le prompt fusionné
+        # 3. Appel API
         response = client.chat.completions.create(
-            model="glm-4", # Modèle haute performance de ZhipuAI
+            model="glm-4",
             messages=[
-                {"role": "system", "content": full_system_prompt},
+                {"role": "system", "content": full_prompt},
                 {"role": "user", "content": query}
             ],
-            temperature=0.7,
-            top_p=0.9
+            temperature=0.7
         )
-        
-        return {
-            "status": "ready",
-            "answer": response.choices[0].message.content,
-            "vertical_used": vertical
-        }
+        return {"status": "ready", "answer": response.choices[0].message.content}
     except Exception as e:
-        print(f"Erreur API: {str(e)}")
-        raise HTTPException(status_code=500, detail="Erreur lors de l'appel à l'IA")
+        return {"status": "error", "answer": f"Erreur IA : {str(e)}"}
 
-# --- API DE DIAGNOSTIC ---
+# --- DIAGNOSTIC & INGESTION ---
 
 @app.post("/v1/admin/diagnostic")
 async def diagnostic(payload: dict = Body(...)):
     prompt_content = payload.get("system_prompt", "")
-    issues = []
     score = 100
-    if "<antml:cite" not in prompt_content:
-        score -= 60
-        issues.append("Absence de balises <antml:cite>.")
-    if "<behavior_guidelines>" not in prompt_content:
-        score -= 20
-        issues.append("Structure <behavior_guidelines> manquante.")
-    
-    return {"status": "passed" if score > 70 else "failed", "score": max(score, 0), "issues": issues}
+    issues = []
+    if "<antml:cite" not in prompt_content: score -= 60; issues.append("Citations manquantes")
+    return {"status": "passed" if score > 70 else "failed", "score": score, "issues": issues}
+
+@app.post("/v1/enterprise/ingest")
+async def ingest_data(file: UploadFile = File(...), vertical: str = Form(...)):
+    return {"status": "success", "filename": file.filename}

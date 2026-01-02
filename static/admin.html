@@ -151,21 +151,23 @@
         const selector = document.getElementById('vAdmin');
         const fileLabel = document.getElementById('currentFile');
 
+        // Charger le prompt au changement de sélection
         async function loadPrompt() {
             const vertical = selector.value;
             fileLabel.innerText = `file: app/verticals/${vertical}.txt`;
             try {
                 const res = await fetch(`/v1/admin/prompts/${vertical}`);
                 const data = await res.json();
-                editor.value = data.content;
+                editor.value = data.content || "";
             } catch (e) {
-                editor.value = "Erreur lors du chargement.";
+                editor.value = "Erreur lors du chargement du fichier.";
             }
         }
 
         selector.addEventListener('change', loadPrompt);
         window.onload = loadPrompt;
 
+        // Sauvegarder les modifications
         async function saveAllConfigs() {
             const vertical = selector.value;
             const content = editor.value;
@@ -175,14 +177,16 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ vertical: vertical, content: content })
                 });
-                if (res.ok) alert(`Fichier ${vertical}.txt mis à jour !`);
-            } catch (e) { alert("Erreur serveur."); }
+                if (res.ok) alert(`La Forge a fondu le fichier ${vertical}.txt avec succès !`);
+                else alert("Erreur lors de la sauvegarde.");
+            } catch (e) { alert("Erreur de connexion au serveur."); }
         }
 
+        // Diagnostic de conformité XML/Citations
         async function runDiagnostic() {
             const prompt = editor.value;
             const status = document.getElementById('diagStatus');
-            status.innerText = "Analyse...";
+            status.innerText = "Analyse sémantique...";
             try {
                 const res = await fetch('/v1/admin/diagnostic', {
                     method: 'POST',
@@ -191,9 +195,16 @@
                 });
                 const data = await res.json();
                 status.innerHTML = data.status === "passed" ? 
-                    `<span class="text-green-400 font-bold">CONFORME (${data.score}%)</span>` : 
-                    `<span class="text-red-400 font-bold">NON-CONFORME</span>`;
+                    `<span class="text-green-400 font-bold"><i class="fa-solid fa-check-circle mr-1"></i> CONFORME (${data.score}%)</span>` : 
+                    `<span class="text-red-400 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> NON-CONFORME</span>`;
             } catch (e) { status.innerText = "Erreur diagnostic."; }
+        }
+
+        // Simulation ingestion (à lier avec votre route /ingest)
+        function ingestData() {
+            const file = document.getElementById('fileInp').files[0];
+            if(!file) return alert("Veuillez choisir un fichier.");
+            alert(`Début de l'ingestion de : ${file.name}`);
         }
     </script>
 </body>

@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-zhipuai
+groq
 pydantic
 python-multipart
 sniffio

@@ -45,34 +45,8 @@ async def update_prompt(payload: dict = Body(...)):
 
 @app.post("/v1/chat/ask")
 async def ask_ai(payload: dict = Body(...)):
-    vertical = payload.get("vertical", "world_search")
-    query = payload.get("query", "")
-    
-    if not query:
-        raise HTTPException(status_code=400, detail="Query empty")
-
-    # 1. Fusion des instructions
-    agent_instr = prompt_manager.get_prompt(vertical)
-    search_instr = prompt_manager.get_prompt("world_search")
-    full_prompt = f"{agent_instr}\n\n{search_instr}"
-    
-    # 2. Vérification Clé API
-    if not ZHIPU_KEY or "votre" in ZHIPU_KEY:
-        return {"status": "ready", "answer": "⚠️ Mode Démo : Configurez ZHIPU_API_KEY pour activer l'IA."}
-
-    try:
-        # 3. Appel API
-        response = client.chat.completions.create(
-            model="glm-4",
-            messages=[
-                {"role": "system", "content": full_prompt},
-                {"role": "user", "content": query}
-            ],
-            temperature=0.7
-        )
-        return {"status": "ready", "answer": response.choices[0].message.content}
-    except Exception as e:
-        return {"status": "error", "answer": f"Erreur IA : {str(e)}"}
+    # TEST FLASH : On ignore tout et on répond direct
+    return {"status": "ready", "answer": "🚀 Connexion Backend OK ! Le problème vient de l'appel API Zhipu."}
 
 # --- DIAGNOSTIC & INGESTION ---
 

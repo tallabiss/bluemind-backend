@@ -8,200 +8,154 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --p-blue: #009EDB; 
-            --p-bg: #FFFFFF; 
-            --p-text: #1A1D21; 
-            --p-border: #E8EBF0; 
-        }
-        body { 
-            background-color: var(--p-bg); 
-            color: var(--p-text); 
-            font-family: 'Inter', sans-serif; 
-            overflow: hidden;
-        }
+        :root { --p-blue: #009EDB; --p-bg: #FFFFFF; --p-border: #E8EBF0; }
+        body { background-color: var(--p-bg); font-family: 'Inter', sans-serif; overflow: hidden; }
         
         /* Layout */
         .sidebar { width: 240px; border-right: 1px solid var(--p-border); height: 100vh; position: fixed; left: 0; top: 0; padding: 1.5rem; background: #F9FAFB; }
-        .main-content { margin-left: 240px; height: 100vh; overflow-y: auto; padding: 2rem 4rem 10rem 4rem; scroll-behavior: smooth; }
+        .main-content { margin-left: 240px; height: 100vh; overflow-y: auto; padding: 2rem 4rem 12rem 4rem; scroll-behavior: smooth; }
         
-        /* Navigation par onglets */
-        .tab-nav { border-bottom: 1px solid var(--p-border); display: flex; gap: 2rem; margin-bottom: 2rem; sticky: top; background: white; z-index: 10; }
-        .tab-item { padding-bottom: 0.75rem; font-weight: 500; cursor: pointer; color: #6D727A; position: relative; transition: all 0.2s; display: flex; align-items: center; }
-        .tab-item i { margin-right: 8px; font-size: 14px; }
-        .tab-item.active { color: var(--p-blue); }
-        .tab-item.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: var(--p-blue); }
+        /* Thread Style */
+        .thread-block { border-bottom: 1px solid #F3F4F6; padding-bottom: 3rem; margin-bottom: 3rem; animation: fadeIn 0.5s ease-out; }
+        .query-title { font-size: 1.8rem; font-weight: 600; color: #111827; margin-bottom: 1.5rem; display: flex; align-items: center; }
+        
+        /* Tabs inside blocks */
+        .tab-nav { display: flex; gap: 1.5rem; border-bottom: 1px solid #F3F4F6; margin-bottom: 1.5rem; }
+        .tab-btn { padding-bottom: 0.5rem; font-size: 0.9rem; font-weight: 500; color: #6B7280; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { color: var(--p-blue); border-bottom: 2px solid var(--p-blue); }
 
-        /* Rendu de la réponse */
-        .answer-container { font-size: 1.1rem; line-height: 1.8; color: #343B42; }
+        /* Content */
+        .answer-text { font-size: 1.1rem; line-height: 1.8; color: #374151; }
         .source-tag { 
             display: inline-flex; align-items: center; justify-content: center; 
-            background: #E0F2FE; color: var(--p-blue); 
-            width: 20px; height: 20px; border-radius: 4px; 
-            font-size: 10px; font-weight: bold; margin-left: 4px; 
+            background: #E0F2FE; color: var(--p-blue); width: 20px; height: 20px; 
+            border-radius: 4px; font-size: 10px; font-weight: bold; margin-left: 5px; 
             border: 1px solid #BAE6FD; vertical-align: super;
-            cursor: pointer;
         }
 
-        /* Barre de recherche (Dock) */
-        .search-dock-container { position: fixed; bottom: 2rem; left: 240px; right: 0; display: flex; justify-content: center; pointer-events: none; }
+        /* Search Bar Dock */
+        .search-dock-container { position: fixed; bottom: 2rem; left: 240px; right: 0; display: flex; justify-content: center; z-index: 50; }
         .search-dock { 
-            pointer-events: auto; width: 100%; max-width: 720px; 
-            background: white; border: 1px solid var(--p-border); 
-            border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
-            padding: 0.75rem; display: flex; align-items: center;
+            width: 100%; max-width: 720px; background: white; border: 1px solid var(--p-border); 
+            border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); padding: 0.6rem; 
+            display: flex; align-items: center;
         }
-        
-        #userInput { flex-grow: 1; border: none; padding: 0.8rem 1rem; font-size: 1rem; outline: none; background: transparent; }
-        .btn-send { 
-            background: var(--p-blue); color: white; width: 45px; height: 45px; 
-            border-radius: 12px; display: flex; align-items: center; 
-            justify-content: center; transition: all 0.2s; 
-        }
-        .btn-send:hover { transform: scale(1.05); background: #0086ba; }
+        #userInput { flex-grow: 1; border: none; padding: 0.8rem; outline: none; font-size: 1rem; }
+        .btn-send { background: var(--p-blue); color: white; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .btn-send:hover { transform: scale(1.1); }
 
-        .hidden-content { display: none; }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="sidebar flex flex-col justify-between">
+    <aside class="sidebar flex flex-col justify-between">
         <div>
             <div class="flex items-center space-x-2 mb-10 cursor-pointer" onclick="location.reload()">
                 <div class="bg-[#009EDB] p-1.5 rounded-lg shadow-sm"><i class="fa-solid fa-brain text-white text-sm"></i></div>
-                <span class="text-xl font-bold tracking-tighter">Bluemind<span class="text-[#009EDB]">.ai</span></span>
+                <span class="text-xl font-bold tracking-tight text-gray-800">Bluemind<span class="text-[#009EDB]">.ai</span></span>
             </div>
-            <nav class="space-y-6">
-                <div class="group flex items-center space-x-3 text-gray-500 hover:text-blue-500 cursor-pointer transition">
-                    <i class="fa-solid fa-house text-lg"></i> <span class="font-medium">Accueil</span>
-                </div>
-                <div class="group flex items-center space-x-3 text-gray-500 hover:text-blue-500 cursor-pointer transition">
-                    <i class="fa-solid fa-bolt text-lg"></i> <span class="font-medium">Découvrir</span>
-                </div>
-                <div class="group flex items-center space-x-3 text-gray-500 hover:text-blue-500 cursor-pointer transition">
-                    <i class="fa-solid fa-layer-group text-lg"></i> <span class="font-medium">Bibliothèque</span>
-                </div>
+            <nav class="space-y-5">
+                <div class="flex items-center space-x-3 text-gray-500 hover:text-blue-500 cursor-pointer transition"><i class="fa-solid fa-house"></i> <span>Thread Actuel</span></div>
+                <div class="flex items-center space-x-3 text-gray-400 hover:text-blue-500 cursor-pointer transition"><i class="fa-solid fa-clock-rotate-left"></i> <span>Historique</span></div>
             </nav>
         </div>
-        <a href="/admin" class="p-4 bg-white border border-gray-200 rounded-2xl flex items-center justify-between group hover:border-blue-300 transition shadow-sm">
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase">La Forge</p>
-                <p class="text-xs font-semibold text-gray-700">Administration</p>
-            </div>
-            <i class="fa-solid fa-gear text-gray-300 group-hover:rotate-90 transition-transform duration-500"></i>
+        <a href="/admin" class="p-3 bg-white border border-gray-200 rounded-xl flex items-center justify-between hover:border-blue-300 transition shadow-sm">
+            <span class="text-xs font-bold text-gray-500 italic">LA FORGE</span>
+            <i class="fa-solid fa-gear text-gray-300"></i>
         </a>
-    </div>
+    </aside>
 
-    <main class="main-content">
-        <div class="max-w-3xl mx-auto">
-            <h1 id="queryTitle" class="text-4xl font-bold mb-8 text-gray-900 leading-tight">Bonjour, Ingénieur. <br><span class="text-gray-300">Que souhaitez-vous analyser ?</span></h1>
-
-            <div class="tab-nav">
-                <div onclick="switchTab('response')" id="t-response" class="tab-item active"><i class="fa-solid fa-comment-dots"></i>Réponse</div>
-                <div onclick="switchTab('links')" id="t-links" class="tab-item"><i class="fa-solid fa-link"></i>Sources</div>
-                <div onclick="switchTab('images')" id="t-images" class="tab-item"><i class="fa-solid fa-images"></i>Médias</div>
-            </div>
-
-            <div id="content-response" class="answer-container fade-in">
-                <p class="text-gray-400">Posez une question technique pour lancer le moteur Bluemind...</p>
-            </div>
-
-            <div id="content-links" class="hidden-content fade-in">
-                <h3 class="text-sm font-bold text-gray-400 uppercase mb-4 tracking-widest">Sources consultées</h3>
-                <div class="grid grid-cols-1 gap-3" id="link-list"></div>
-            </div>
-
-            <div id="content-images" class="hidden-content fade-in">
-                <div class="grid grid-cols-2 gap-4" id="image-grid"></div>
+    <main class="main-content" id="mainCanvas">
+        <div class="max-w-3xl mx-auto" id="threadContainer">
+            <div id="welcomeScreen" class="py-20 text-center">
+                <h1 class="text-5xl font-bold text-gray-900 mb-4 tracking-tight">Bonjour, Ingénieur.</h1>
+                <p class="text-gray-400 text-xl">L'intelligence Bluemind est prête pour votre prochaine analyse.</p>
             </div>
         </div>
     </main>
 
     <div class="search-dock-container">
         <div class="search-dock">
-            <div class="flex items-center px-4 w-full">
-                <i class="fa-solid fa-paperclip text-gray-400 hover:text-blue-500 cursor-pointer transition"></i>
-                <input type="text" id="userInput" placeholder="Approfondir la recherche..." onkeypress="if(event.key === 'Enter') askQuestion()">
-                <button onclick="askQuestion()" class="btn-send"><i class="fa-solid fa-arrow-up"></i></button>
-            </div>
+            <input type="text" id="userInput" placeholder="Posez une question technique ou stratégique..." onkeypress="if(event.key === 'Enter') askQuestion()">
+            <button onclick="askQuestion()" class="btn-send"><i class="fa-solid fa-arrow-up"></i></button>
         </div>
     </div>
 
     <script>
-        function switchTab(target) {
-            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-            document.getElementById(`t-${target}`).classList.add('active');
-            
-            document.getElementById('content-response').classList.add('hidden-content');
-            document.getElementById('content-links').classList.add('hidden-content');
-            document.getElementById('content-images').classList.add('hidden-content');
-            
-            document.getElementById(`content-${target}`).classList.remove('hidden-content');
-        }
-
         async function askQuestion() {
             const input = document.getElementById('userInput');
-            const responseDiv = document.getElementById('content-response');
-            const title = document.getElementById('queryTitle');
+            const thread = document.getElementById('threadContainer');
+            const welcome = document.getElementById('welcomeScreen');
             const query = input.value.trim();
-            if(!query) return;
 
-            title.innerText = query;
-            title.classList.add('text-2xl');
-            
-            responseDiv.innerHTML = `
-                <div class="space-y-4 animate-pulse">
-                    <div class="h-4 bg-gray-100 rounded w-3/4"></div>
-                    <div class="h-4 bg-gray-100 rounded w-full"></div>
-                    <div class="h-4 bg-gray-100 rounded w-5/6"></div>
-                </div>`;
+            if (!query) return;
+            if (welcome) welcome.remove();
+
+            const blockId = "b-" + Date.now();
             input.value = '';
 
+            // Création du bloc de discussion
+            const block = document.createElement('div');
+            block.className = "thread-block";
+            block.innerHTML = `
+                <h2 class="query-title">${query}</h2>
+                <div class="tab-nav">
+                    <div class="tab-btn active" onclick="showSubTab('${blockId}', 'res')">Réponse</div>
+                    <div class="tab-btn" onclick="showSubTab('${blockId}', 'src')">Sources</div>
+                    <div class="tab-btn" onclick="showSubTab('${blockId}', 'img')">Médias</div>
+                </div>
+                <div id="content-res-${blockId}" class="answer-text">
+                    <div class="animate-pulse space-y-3"><div class="h-4 bg-gray-100 rounded w-3/4"></div><div class="h-4 bg-gray-100 rounded w-full"></div></div>
+                </div>
+                <div id="content-src-${blockId}" class="hidden space-y-2"></div>
+                <div id="content-img-${blockId}" class="hidden grid grid-cols-2 gap-4"></div>
+            `;
+            thread.appendChild(block);
+            block.scrollIntoView({ behavior: 'smooth' });
+
             try {
-                const res = await fetch('/v1/chat/ask', {
+                const response = await fetch('/v1/chat/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ vertical: "world_search", query: query })
                 });
-                const data = await res.json();
+                const data = await response.json();
 
-                // 1. Rendu de la Réponse avec AntML
-                let formatted = data.answer.replace(/<antml:cite index="(.*?)">(.*?)<\/antml:cite>/g, 
-                    `<span class="border-b-2 border-blue-100 hover:bg-blue-50 transition cursor-help">$2</span><span class="source-tag" onclick="switchTab('links')">$1</span>`);
-                
-                // Formattage des listes et gras pour le look Perplexity
-                formatted = formatted.replace(/\n/g, '<br>');
-                responseDiv.innerHTML = formatted;
+                // Rendu de la réponse
+                const resDiv = document.getElementById(`content-res-${blockId}`);
+                let html = data.answer.replace(/<antml:cite index="(.*?)">(.*?)<\/antml:cite>/g, 
+                    `<span class="border-b-2 border-blue-50">$2</span><span class="source-tag">$1</span>`);
+                resDiv.innerHTML = html.replace(/\n/g, '<br>');
 
-                // 2. Rendu des Sources (Onglet Liens)
+                // Rendu des sources
                 const sources = [...data.answer.matchAll(/index="(.*?)"/g)].map(m => m[1]);
-                const linkList = document.getElementById('link-list');
-                linkList.innerHTML = [...new Set(sources)].map(s => `
-                    <div class="p-4 border border-gray-100 rounded-2xl flex items-center justify-between hover:bg-blue-50 hover:border-blue-200 transition group cursor-pointer">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center text-blue-500 shadow-sm">${s[0]}</div>
-                            <span class="font-semibold text-gray-700">${s}</span>
-                        </div>
-                        <i class="fa-solid fa-arrow-right text-gray-300 group-hover:translate-x-1 group-hover:text-blue-500 transition"></i>
+                document.getElementById(`content-src-${blockId}`).innerHTML = [...new Set(sources)].map(s => `
+                    <div class="p-3 border border-gray-100 rounded-lg flex items-center space-x-3 text-sm font-medium text-gray-600">
+                        <i class="fa-solid fa-file-lines text-blue-400"></i><span>Source technique : ${s}</span>
                     </div>
                 `).join('');
 
-                // 3. Rendu des Images (Simulation Visuelle)
-                const mainTopic = query.split(' ').slice(-1)[0];
-                const imageGrid = document.getElementById('image-grid');
-                imageGrid.innerHTML = [1,2,3,4].map(i => `
-                    <div class="group relative overflow-hidden rounded-2xl bg-gray-100 aspect-video shadow-sm border border-gray-100">
-                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=400&sig=${i+Math.random()}" 
-                             class="object-cover w-full h-full group-hover:scale-105 transition duration-700">
-                        <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                // Rendu des images simulées
+                const topic = query.split(' ').pop();
+                document.getElementById(`content-img-${blockId}`).innerHTML = [1,2].map(i => `
+                    <div class="rounded-xl overflow-hidden bg-gray-100 aspect-video">
+                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=60&w=400&sig=${i+Math.random()}" class="w-full h-full object-cover">
                     </div>
                 `).join('');
 
             } catch (e) {
-                responseDiv.innerHTML = `<div class="p-4 bg-red-50 text-red-500 rounded-xl">Le moteur Bluemind a rencontré une erreur. Veuillez vérifier votre connexion au Backend.</div>`;
+                document.getElementById(`content-res-${blockId}`).innerHTML = "Erreur de connexion au serveur.";
             }
+        }
+
+        function showSubTab(blockId, type) {
+            const block = document.getElementById(`content-res-${blockId}`).parentElement;
+            block.querySelectorAll('[id^="content-"]').forEach(d => d.classList.add('hidden'));
+            block.querySelector(`#content-${type}-${blockId}`).classList.remove('hidden');
+            
+            block.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
         }
     </script>
 </body>

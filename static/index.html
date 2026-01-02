@@ -8,24 +8,27 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root { --sf-blue: #009EDB; --sf-blue-dark: #0070d2; }
-        body { background-color: #F3F5F9; font-family: 'Segoe UI', system-ui, sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        body { background-color: #F3F5F9; font-family: 'Segoe UI', system-ui, sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; }
         .sf-shadow { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
         .mode-btn { transition: all 0.2s; border-bottom: 2px solid transparent; cursor: pointer; }
         .mode-btn.active { border-color: var(--sf-blue); color: var(--sf-blue); font-weight: bold; }
+        
+        /* Citations AntML */
         .antml-cite { 
             display: inline-flex; align-items: center; justify-content: center;
             background: var(--sf-blue); color: white; font-size: 10px;
             font-weight: bold; width: 18px; height: 18px; border-radius: 4px;
             margin-left: 4px; vertical-align: super; cursor: help;
         }
-        .chat-bubble { max-width: 85%; border-radius: 1.2rem; padding: 0.8rem 1.2rem; margin-bottom: 1rem; line-height: 1.5; }
-        .bot-bubble { background: white; border: 1px solid #e5e7eb; color: #1f2937; align-self: flex-start; }
-        .user-bubble { background: var(--sf-blue); color: white; align-self: flex-end; margin-left: auto; }
-        #chatWindow { flex-grow: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; }
+
+        #chatWindow { flex-grow: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+        .chat-bubble { max-width: 85%; border-radius: 1.2rem; padding: 0.8rem 1.2rem; line-height: 1.5; font-size: 0.95rem; }
+        .bot-bubble { background: white; border: 1px solid #e5e7eb; color: #1f2937; align-self: flex-start; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .user-bubble { background: var(--sf-blue); color: white; align-self: flex-end; box-shadow: 0 2px 10px rgba(0,158,219,0.2); }
     </style>
 </head>
-<body class="min-h-screen">
+<body>
 
     <header class="glass-header sticky top-0 z-50 border-b border-gray-200 px-6 py-4">
         <div class="max-w-5xl mx-auto flex justify-between items-center">
@@ -36,35 +39,37 @@
             <nav class="flex space-x-6 text-sm font-medium text-gray-600">
                 <button onclick="setMode('search')" id="m-search" class="mode-btn active pb-1">World Search</button>
                 <button onclick="setMode('agent')" id="m-agent" class="mode-btn pb-1">Agents Verticaux</button>
-                <a href="/admin" class="text-gray-400 hover:text-blue-500 transition ml-4"><i class="fa-solid fa-gear"></i></a>
+                <a href="/admin" class="text-gray-400 hover:text-blue-500 transition ml-4" title="Forge Admin"><i class="fa-solid fa-gear"></i></a>
             </nav>
         </div>
     </header>
 
-    <main class="flex-grow max-w-4xl mx-auto w-full flex flex-col p-6">
+    <main class="flex-grow max-w-4xl mx-auto w-full flex flex-col overflow-hidden">
         <div id="chatWindow">
-            <div class="bot-bubble chat-bubble shadow-sm">
-                Bonjour ! Posez-moi votre question.
+            <div class="bot-bubble chat-bubble">
+                Bonjour ! Je suis votre interface Cockpit. Comment puis-je vous aider aujourd'hui ?
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl sf-shadow border border-gray-200 p-2 mt-4">
-            <div id="verticalBox" class="hidden px-4 pt-2 flex items-center space-x-2">
-                <span class="text-[10px] font-bold text-gray-400 uppercase">Expert :</span>
-                <select id="vSelect" class="text-xs font-bold text-[#009EDB] bg-blue-50 p-1 rounded outline-none border-none">
-                    <option value="telco">📡 Telecom</option>
-                    <option value="finance">💰 Finance</option>
-                    <option value="africa">🌍 Africa</option>
-                </select>
-            </div>
+        <div class="p-6 bg-transparent">
+            <div class="bg-white rounded-2xl sf-shadow border border-gray-200 p-2">
+                <div id="verticalBox" class="hidden px-4 pt-2 flex items-center space-x-2">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Expert Actif :</span>
+                    <select id="vSelect" class="text-xs font-bold text-[#009EDB] bg-blue-50 p-1 rounded outline-none border-none">
+                        <option value="telco">📡 Telecom Expert</option>
+                        <option value="finance">💰 Finance Analyst</option>
+                        <option value="africa">🌍 Africa Strategic</option>
+                    </select>
+                </div>
 
-            <div class="flex items-center p-2">
-                <input type="text" id="userInput" placeholder="Écrivez ici..." 
-                       class="flex-grow p-3 outline-none text-gray-700 bg-transparent"
-                       onkeypress="if(event.key === 'Enter') askQuestion()">
-                <button onclick="askQuestion()" id="sendBtn" class="bg-[#009EDB] text-white h-12 w-12 rounded-xl flex items-center justify-center hover:bg-blue-600 transition">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
+                <div class="flex items-center p-2">
+                    <input type="text" id="userInput" placeholder="Posez votre question..." 
+                           class="flex-grow p-3 outline-none text-gray-700 bg-transparent"
+                           onkeypress="if(event.key === 'Enter') askQuestion()">
+                    <button onclick="askQuestion()" id="sendBtn" class="bg-[#009EDB] text-white h-12 w-12 rounded-xl flex items-center justify-center hover:bg-blue-600 transition shadow-lg">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </main>
@@ -81,8 +86,10 @@
 
         function formatAIResponse(text) {
             if (!text) return "";
+            // Rendu des balises <antml:cite>
             return text.replace(/<antml:cite index="(.*?)">(.*?)<\/antml:cite>/g, (match, index, content) => {
-                return `${content}<span class="antml-cite" title="Source: ${index}">${index.substring(0,2)}</span>`;
+                const cleanIndex = index.split(',')[0];
+                return `${content}<span class="antml-cite" title="Source: ${index}">${cleanIndex}</span>`;
             });
         }
 
@@ -90,31 +97,58 @@
             const input = document.getElementById('userInput');
             const chatWindow = document.getElementById('chatWindow');
             const query = input.value.trim();
+
             if(!query) return;
 
-            chatWindow.innerHTML += `<div class="user-bubble chat-bubble shadow-sm">${query}</div>`;
+            // 1. Affichage message utilisateur
+            chatWindow.innerHTML += `<div class="user-bubble chat-bubble">${query}</div>`;
             input.value = '';
             
+            // 2. Loader
             const loaderId = "loader-" + Date.now();
-            chatWindow.innerHTML += `<div id="${loaderId}" class="bot-bubble chat-bubble italic text-gray-400">Bluemind analyse...</div>`;
+            chatWindow.innerHTML += `<div id="${loaderId}" class="bot-bubble chat-bubble italic text-gray-400 animate-pulse">Analyse en cours...</div>`;
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
             try {
+                const vertical = (currentMode === 'agent' ? document.getElementById('vSelect').value : 'world_search');
+                
+                console.log("Tentative d'envoi vers le backend...", { vertical, query });
+
                 const response = await fetch('/v1/chat/ask', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        vertical: (currentMode === 'agent' ? document.getElementById('vSelect').value : 'world_search'), 
-                        query: query 
-                    })
+                    body: JSON.stringify({ vertical: vertical, query: query })
                 });
 
+                if (!response.ok) {
+                    const errorMsg = await response.text();
+                    throw new Error(`Erreur HTTP ${response.status}: ${errorMsg}`);
+                }
+
                 const data = await response.json();
-                document.getElementById(loaderId).remove();
-                chatWindow.innerHTML += `<div class="bot-bubble chat-bubble shadow-sm">${formatAIResponse(data.answer)}</div>`;
+                console.log("Réponse reçue du serveur:", data);
+
+                // Retirer le loader
+                const loaderElem = document.getElementById(loaderId);
+                if(loaderElem) loaderElem.remove();
+
+                // 3. Affichage réponse
+                if (data.answer) {
+                    const formatted = formatAIResponse(data.answer);
+                    chatWindow.innerHTML += `<div class="bot-bubble chat-bubble shadow-sm">${formatted}</div>`;
+                } else {
+                    chatWindow.innerHTML += `<div class="bot-bubble chat-bubble text-red-500 italic">Le serveur n'a renvoyé aucun texte.</div>`;
+                }
+
             } catch (e) {
-                document.getElementById(loaderId).innerText = "Erreur de connexion au serveur.";
+                console.error("Erreur critique Cockpit:", e);
+                const loaderElem = document.getElementById(loaderId);
+                if(loaderElem) {
+                    loaderElem.innerHTML = `<span class="text-red-500 font-bold">⚠️ Erreur: ${e.message}</span>`;
+                    loaderElem.classList.remove('animate-pulse', 'text-gray-400');
+                }
             }
+            
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
     </script>
